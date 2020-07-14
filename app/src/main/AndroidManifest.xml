@@ -10,7 +10,9 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <activity android:name="org.wangyichen.anynote.module.mainpage.MainActivity">
+    <activity android:name=".module.noteDetail.NoteDetailActivity"></activity>
+    <activity android:name=".module.addEditNote.AddEditNoteActivity" />
+    <activity android:name=".module.notes.NotesActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 

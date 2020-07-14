@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+  <data>
+
+    <import type="android.view.View" />
+    <variable
+      name="viewmodel"
+      type="org.wangyichen.anynote.module.noteDetail.NoteDetailViewModel" />
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+          android:id="@+id/iv_image"
+          android:layout_width="80dp"
+          android:layout_height="100dp"
+          android:layout_marginBottom="8dp"
+          android:layout_marginEnd="8dp"
+          android:layout_marginTop="8dp"
+          android:src="@drawable/note_blue"
+          android:visibility="@{viewmodel.imageVisibility}"
+          app:layout_constraintBottom_toTopOf="@+id/tv_alarm_time"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          tools:srcCompat="@tools:sample/avatars" />
+
+        <ImageView
+          android:id="@+id/iv_alarm"
+          android:layout_width="wrap_content"
+          android:layout_height="35dp"
+          android:layout_marginEnd="8dp"
+          android:visibility="@{viewmodel.alarmShow==2?View.VISIBLE:View.GONE}"
+          app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
+          app:srcCompat="@drawable/alarm_blue" />
+
+        <ImageView
+          android:id="@+id/iv_alarmed"
+          android:layout_width="wrap_content"
+          android:layout_height="35dp"
+          android:layout_marginEnd="8dp"
+          android:visibility="@{viewmodel.alarmShow==1?View.VISIBLE:View.GONE}"
+          app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
+          app:srcCompat="@drawable/alarm" />
+
+        <ImageView
+          android:id="@+id/iv_no_alarm"
+          android:layout_width="wrap_content"
+          android:layout_height="35dp"
+          android:layout_marginEnd="8dp"
+          android:visibility="@{viewmodel.alarmShow==0?View.VISIBLE:View.GONE}"
+          app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
+          app:srcCompat="@drawable/alarm_gray" />
+
+        <TextView
+          android:id="@+id/tv_notebook"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:text="@{viewmodel.notebook}"
+          android:textSize="18sp"
+          app:layout_constraintStart_toStartOf="@+id/tv_title"
+          app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+
+        <TextView
+          android:id="@+id/tv_time"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="8dp"
+          android:layout_marginTop="8dp"
+          android:text="@{viewmodel.creationText}"
+          android:textSize="12sp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintStart_toStartOf="@+id/tv_title"
+          app:layout_constraintTop_toBottomOf="@+id/tv_notebook"
+          tools:text="2020-02-30 12:21" />
+
+        <TextView
+          android:id="@+id/tv_alarm_time"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="60dp"
+          android:text="@{viewmodel.alarmText}"
+          android:textSize="12sp"
+          app:layout_constraintBottom_toBottomOf="@+id/tv_time"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@+id/tv_time"
+          tools:text="=================================" />
+
+        <TextView
+          android:id="@+id/tv_title"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="16dp"
+          android:layout_marginStart="16dp"
+          android:layout_marginTop="8dp"
+          android:text="@{viewmodel.title}"
+          android:textSize="30sp"
+          app:layout_constraintEnd_toStartOf="@+id/iv_image"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          tools:text="===========================================" />
+
+        <TextView
+          android:id="@+id/note_color"
+          android:layout_width="10dp"
+          android:layout_height="0dp"
+          android:layout_alignParentEnd="true"
+          android:background="@drawable/rectangle"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="5px"
+        android:background="@color/colorPrimary"
+        android:layout_margin="10dp"/>
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textSize="22sp"
+        android:id="@+id/content"
+        android:text="@{viewmodel.content}"
+        tools:text='fdasfasdf'/>
+    </LinearLayout>
+  </ScrollView>
+
+</layout>

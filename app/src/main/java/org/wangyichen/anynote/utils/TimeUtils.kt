@@ -15,5 +15,10 @@ class TimeUtils {
       val list = date.split(" ").toList().map(String::toInt)
       return list
     }
+    fun time2String(time:Long):String{
+      val dataFormater = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA)
+      val date = dataFormater.format(time)
+      return date
+    }
   }
 }

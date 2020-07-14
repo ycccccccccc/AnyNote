@@ -1,6 +1,6 @@
 package org.wangyichen.anynote.utils.constant
 
-class SortUtils {
+class SortType {
   companion object{
     val CREATION = 0L
     val LASTMODIFICATION = 1L

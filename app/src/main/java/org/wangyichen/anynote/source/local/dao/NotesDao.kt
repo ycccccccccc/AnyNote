@@ -16,6 +16,8 @@ interface NotesDao {
   @Query("delete from notes where noteid = (:noteid)")
   fun deleteNotesById(noteid: List<Long>)
 
+  @Query("delete from notes where noteid = :noteid")
+  fun deleteNoteById(noteid: Long)
   //  改
   @Update(onConflict = OnConflictStrategy.REPLACE)
   fun updateNote(note: Note)
@@ -24,7 +26,8 @@ interface NotesDao {
   fun updateTrashs(trashed: Boolean, noteid: List<Long>)
 
   @Query("update notes set trashed = :trashed where noteid =:noteid")
-  fun updateTrash(trashed: Boolean, noteid: Long)
+  fun updateTrashById(trashed: Boolean, noteid: Long)
+
 
   @Query("update notes set topping = :topping where noteid =:noteid")
   fun updateTopping(topping: Boolean, noteid: Long)
@@ -41,11 +44,15 @@ interface NotesDao {
   //  查
   @Transaction
   @Query("select * from notes")
-  fun getNotes(): LiveData<List<NoteWithOthers>>
+  fun getNotes(): List<NoteWithOthers>
 
   @Transaction
   @Query("select * from notes where noteid = :noteid")
   fun getNoteById(noteid: Long): LiveData<NoteWithOthers>
+
+  @Transaction
+  @Query("select * from notes where noteid = :noteid")
+  fun getNoLiveNoteById(noteid: Long): NoteWithOthers
 
   @Transaction
   @Query("select * from notes where belongnotebookid = :notebookId")

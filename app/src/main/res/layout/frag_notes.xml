@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tool="http://schemas.android.com/tools">
+  <data>
+    <import type="android.view.View" />
+    <variable
+      name="viewmodel"
+      type="org.wangyichen.anynote.module.notes.NotesViewModel" />
+  </data>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+      android:id="@+id/empty_layout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:onClick="@{()->viewmodel.addNewNote()}"
+      android:clickable="@{viewmodel.emptyClickable}"
+      android:orientation="vertical"
+      android:visibility="@{viewmodel.isEmpty ? View.VISIBLE : View.GONE}"
+      tool:visibility="visible">
+
+      <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center"
+        android:src="@drawable/note" />
+
+      <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@{viewmodel.emptyText}"
+        tool:text="没有笔记，点击新建笔记"
+        android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/notes_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:visibility="@{viewmodel.isEmpty ? View.GONE : View.VISIBLE}"
+      android:scrollbarSize="5dp"
+      android:scrollbars="vertical"
+      android:scrollbarThumbVertical="@color/colorPrimary"
+      tool:listitem="@layout/item_note"
+      tool:itemCount="3"/>
+  </RelativeLayout>
+
+</layout>

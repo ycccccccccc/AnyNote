@@ -9,7 +9,7 @@ class AttachmentsRepository private constructor(
     val database: NoteDatabase,
     val executors: AppExecutors
 ) {
-  private val dao = database.attachmentDao()
+  private val dao = database.attachmentsDao()
 
   fun saveAttachment(attachment: Attachment) {
     executors.diskIO.execute {
@@ -28,6 +28,7 @@ class AttachmentsRepository private constructor(
       dao.updateAttachment(attachment)
     }
   }
+
 
   companion object {
     private var INSTANCE: AttachmentsRepository? = null

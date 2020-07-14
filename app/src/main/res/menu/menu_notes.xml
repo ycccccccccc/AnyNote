@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+    android:id="@+id/clear_trash"
+    android:title="清空回收站"
+    android:icon="@drawable/clear_white"
+    app:showAsAction="ifRoom"/>
+  <item
+    android:id="@+id/sort"
+    android:icon="@drawable/sort_white"
+    android:title="排序方式"
+    app:showAsAction="ifRoom">
+    <menu>
+      <item
+        android:id="@+id/creation"
+        android:title="创建时间" />
+      <item
+        android:id="@+id/lastModification"
+        android:title="修改时间" />
+    </menu>
+  </item>
+  <item
+    android:id="@+id/show"
+    android:icon="@drawable/zhanshi_white"
+    android:title="展示方式"
+    app:showAsAction="ifRoom">
+    <menu>
+      <item
+        android:id="@+id/noImage"
+        android:title="不显示略缩图" />
+      <item
+        android:id="@+id/hasImage"
+        android:title="显示略缩图" />
+    </menu>
+  </item>
+</menu>

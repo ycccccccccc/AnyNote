@@ -1,6 +1,7 @@
 package org.wangyichen.anynote.source.local.repository
 
 import android.content.Context
+import org.wangyichen.anynote.source.Entity.NoteWithOthers
 import org.wangyichen.anynote.source.Entity.Notebook
 import org.wangyichen.anynote.source.local.NoteDatabase
 import org.wangyichen.anynote.utils.AppExecutors

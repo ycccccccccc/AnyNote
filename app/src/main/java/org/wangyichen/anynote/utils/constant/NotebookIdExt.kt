@@ -1,6 +1,6 @@
 package org.wangyichen.anynote.utils.constant
 
-class NotebookIdUtils {
+class NotebookIdExt {
   companion object{
     val ALLNOTES = -1L
     val TRASH = -2L

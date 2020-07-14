@@ -1,112 +1,129 @@
 package org.wangyichen.anynote.source.local.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import org.wangyichen.anynote.source.Entity.Note
+import org.wangyichen.anynote.source.Entity.NoteWithOthers
 import org.wangyichen.anynote.source.local.NoteDatabase
 import org.wangyichen.anynote.utils.AppExecutors
+import java.lang.Exception
 
 class NotesRepository private constructor(
-  val database: NoteDatabase,
-  val executors: AppExecutors
+  private val database: NoteDatabase,
+  private val executors: AppExecutors
 ) {
-  private val dao = database.notesDao()
+  private val notesDao = database.notesDao()
 
   fun saveNote(note: Note) {
     executors.diskIO.execute {
-      dao.insertNote(note)
+      notesDao.insertNote(note)
+    }
+  }
+
+  fun deleteNoteById(id: Long) {
+    executors.diskIO.execute {
+      notesDao.deleteNoteById(id)
     }
   }
 
   fun deleteNotesById(ids: List<Long>) {
     executors.diskIO.execute {
-      dao.deleteNotesById(ids)
+      notesDao.deleteNotesById(ids)
     }
   }
 
   fun updateNote(note: Note) {
     executors.diskIO.execute {
-      dao.updateNote(note)
+      notesDao.updateNote(note)
     }
   }
 
-  fun trashNote(note: Note) {
+  fun trashNoteById(noteId: Long) {
     executors.diskIO.execute {
-      dao.updateTrash(true, note.id!!)
+      notesDao.updateTrashById(true, noteId)
     }
   }
 
   fun untrashNote(note: Note) {
     executors.diskIO.execute {
-      dao.updateTrash(false, note.id!!)
+      notesDao.updateTrashById(false, note.id!!)
     }
   }
 
   fun trashNotes(notes: List<Note>) {
     executors.diskIO.execute {
-      dao.updateTrashs(true, notes.map { it.id!! })
+      notesDao.updateTrashs(true, notes.map { it.id!! })
     }
   }
 
   fun untrashNotes(notes: List<Note>) {
     executors.diskIO.execute {
-      dao.updateTrashs(false, notes.map { it.id!! })
+      notesDao.updateTrashs(false, notes.map { it.id!! })
     }
   }
 
-  fun toppingNote(note: Note) {
-    executors.diskIO.execute {
-      dao.updateTopping(true, note.id!!)
-    }
-  }
 
   fun untoppingNote(note: Note) {
     executors.diskIO.execute {
-      dao.updateTopping(false, note.id!!)
+      notesDao.updateTopping(false, note.id!!)
     }
   }
 
-  fun archiveNote(note: Note) {
+  fun changeNoteToppingById(noteId: Long, topping: Boolean) {
     executors.diskIO.execute {
-      dao.updateArchived(true, note.id!!)
+      notesDao.updateTopping(topping, noteId)
     }
   }
 
-  fun unarchiveNote(note: Note) {
+  fun changeNoteArchiveById(noteId: Long, archived: Boolean) {
     executors.diskIO.execute {
-      dao.updateArchived(false, note.id!!)
+      notesDao.updateArchived(archived, noteId)
     }
   }
 
-  fun archiveNotes(notes: List<Note>) {
+
+  fun changeNotesarchive(notes: List<Note>, archived: Boolean) {
     executors.diskIO.execute {
-      dao.updateArchiveds(true, notes.map { it.id!! })
+      notesDao.updateArchiveds(archived, notes.map { it.id!! })
     }
   }
 
-  fun unarchiveNotes(notes: List<Note>) {
-    executors.diskIO.execute {
-      dao.updateArchiveds(false, notes.map { it.id!! })
-    }
-  }
 
   fun changeNotebookIds(notebookId: Long, notes: List<Note>) {
     executors.diskIO.execute {
-      dao.updateBelongNotebookIds(notebookId, notes.map { it.id!! })
+      notesDao.updateBelongNotebookIds(notebookId, notes.map { it.id!! })
     }
   }
 
-  fun getNotes() = dao.getNotes()
+  fun getNotes(listener: LoadListener) {
+    executors.diskIO.execute {
+      try {
+        val notes = notesDao.getNotes()
+        listener.onSuccess(notes)
+      } catch (e: Exception) {
+        listener.onError(e)
+      }
+    }
+  }
 
-  fun getNoteById(noteid: Long) = dao.getNoteById(noteid)
+  fun getNoteById(noteid: Long) = notesDao.getNoteById(noteid)
+  fun getNoteById(noteid: Long, listener: LoadListener) {
+    executors.diskIO.execute {
+      try {
+        val note = notesDao.getNoLiveNoteById(noteid)
+        listener.onSuccess(note)
+      } catch (e: Exception) {
+        listener.onError(e)
+      }
+    }
+  }
 
-  fun getNotesByNotebookId(notebookId: Long) = dao.getNotesByNotebookId(notebookId)
+  fun getNotesByNotebookId(notebookId: Long) = notesDao.getNotesByNotebookId(notebookId)
 
-  fun getTrashedNotes() = dao.getTrashedNotes(true)
+  fun getTrashedNotes() = notesDao.getTrashedNotes(true)
 
-  fun getArchivedNotes() = dao.getArchivedNotes(true)
+  fun getArchivedNotes() = notesDao.getArchivedNotes(true)
 
-  fun getSketchNotes() = dao.getSketchNotes(true)
+  fun getSketchNotes() = notesDao.getSketchNotes(true)
 
   companion object {
     private var INSTANCE: NotesRepository? = null
@@ -119,5 +136,10 @@ class NotesRepository private constructor(
         return INSTANCE!!
       }
     }
+  }
+
+  interface LoadListener {
+    fun onSuccess(item: Any)
+    fun onError(e: Exception)
   }
 }
