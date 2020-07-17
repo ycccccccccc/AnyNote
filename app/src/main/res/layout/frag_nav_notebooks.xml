@@ -37,16 +37,10 @@
       android:textSize="40sp" />
   </RelativeLayout>
 
-  <ScrollView
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/items_nav"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="10dp">
-
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/items_nav"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      tools:itemCount="5"
-      tools:listitem="@layout/item_notebook" />
-  </ScrollView>
+    android:layout_height="wrap_content"
+    tools:itemCount="5"
+    tools:listitem="@layout/item_notebook" />
 </LinearLayout>

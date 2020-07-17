@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <RelativeLayout
+    android:id="@+id/edit_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+      android:id="@+id/et_name"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_above="@+id/positive"
+      android:layout_centerHorizontal="true"
+      android:layout_marginBottom="10dp"
+      android:hint="请输入笔记本名称"
+      android:text="@={viewmodel.name}"
+      android:textColor="@android:color/black"
+      android:textSize="20sp" />
+
+    <ImageView
+      android:id="@+id/iv_choose_color"
+      android:layout_width="120dp"
+      android:layout_height="120dp"
+      android:layout_above="@id/et_name"
+      android:layout_centerHorizontal="true"
+      android:layout_marginBottom="20dp"
+      android:onClick="@{()->viewmodel.chooseColor()}"
+      android:src="@drawable/cycle" />
+
+    <Button
+      android:id="@+id/negative"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:layout_toStartOf="@id/positive"
+      android:layout_margin="20dp"
+      android:onClick="@{()->viewmodel.onNegativeClick()}"
+      android:text="@{viewmodel.negativeText}"
+      android:background="@null"
+      tools:text="取消" />
+
+    <Button
+      android:id="@+id/positive"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentEnd="true"
+      android:layout_margin="20dp"
+      android:onClick="@{()->viewmodel.onPositiveClick()}"
+      android:text="@{viewmodel.positiveText}"
+      android:background="@null"
+      tools:text="确定" />
+
+
+  </RelativeLayout>
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="viewmodel"
+      type="org.wangyichen.anynote.widget.addEditNotebookDialog.AddEditNotebookViewModel" />
+  </data>
+
+</layout>

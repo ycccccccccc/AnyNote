@@ -4,6 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+
+    <import type="android.view.View" />
     <variable
       name="viewmodel"
       type="org.wangyichen.anynote.module.notes.NotesViewModel" />
@@ -37,6 +39,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/shape_title"
+            android:maxWidth="150dp"
+            android:maxLines="1"
+            android:minWidth="80dp"
+            android:gravity="center"
+            android:ellipsize="end"
             android:text="@{viewmodel.notebookName}"
             android:textColor="@android:color/white"
             android:textSize="@dimen/titleTextSize"
@@ -60,6 +67,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_margin="@dimen/float_margin"
+          android:visibility="@{viewmodel.fabVisible ? View.VISIBLE : View.GONE}"
           android:src="@drawable/add_white"
           app:fabSize="normal"
           app:layout_anchor="@id/contentFrame"

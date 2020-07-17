@@ -6,11 +6,11 @@ import org.wangyichen.anynote.module.AnyNoteApplication
 import org.wangyichen.anynote.source.Entity.Note
 import org.wangyichen.anynote.source.Entity.NoteWithOthers
 import org.wangyichen.anynote.source.local.Repository
-import org.wangyichen.anynote.source.local.repository.NotesRepository
 import org.wangyichen.anynote.utils.IntentUtils
 import org.wangyichen.anynote.utils.constant.FilterType
 import org.wangyichen.anynote.utils.constant.NotebookIdExt
 import org.wangyichen.anynote.utils.constant.SortType
+import org.wangyichen.anynote.widget.addEditNotebookDialog.AddEditNotebookDialogFragment
 import java.lang.Exception
 
 class NotesViewModel : ViewModel() {
@@ -43,8 +43,8 @@ class NotesViewModel : ViewModel() {
   val openNoteEvent: LiveData<Long>
     get() = _openNoteEvent
 
-  private val _addNoteEvent = MutableLiveData<Any>()
-  val addNoteEvent: LiveData<Any>
+  private val _addNoteEvent = MutableLiveData<Long>()
+  val addNoteEvent: LiveData<Long>
     get() = _addNoteEvent
 
   private val _snackbarEvent = MutableLiveData<String>()
@@ -62,6 +62,10 @@ class NotesViewModel : ViewModel() {
   private val _emptyClickable = MutableLiveData<Boolean>()
   val emptyClickable: LiveData<Boolean>
     get() = _emptyClickable
+
+  private val _fabVisible = MutableLiveData<Boolean>()
+  val fabVisible: LiveData<Boolean>
+    get() = _fabVisible
 
   val notebooks = repository.NOTEBOOKS.getNotebooks()
 
@@ -96,20 +100,36 @@ class NotesViewModel : ViewModel() {
 
 
   fun load() {
+    _notebookType.value = when (_notebookId) {
+      NotebookIdExt.ALLNOTES -> NotebookIdExt.ALLNOTES
+      NotebookIdExt.ARCHIVED -> NotebookIdExt.ARCHIVED
+      NotebookIdExt.SKETCH -> NotebookIdExt.SKETCH
+      NotebookIdExt.TRASH -> NotebookIdExt.TRASH
+      else -> NotebookIdExt.ALLNOTES
+    }
     _emptyText.value = when (_notebookId) {
       NotebookIdExt.ALLNOTES -> "当前没有笔记，点击新建"
       NotebookIdExt.ARCHIVED -> "没有已归档笔记"
       NotebookIdExt.SKETCH -> "草稿箱为空"
       NotebookIdExt.TRASH -> "回收站为空"
-      else -> _notebookName.value + "没有笔记，点击新建"
+      else -> _notebookName.value + "\n没有笔记，点击新建"
     }
 
-    _emptyClickable.value = when (_notebookId) {
-      NotebookIdExt.ARCHIVED, NotebookIdExt.SKETCH, NotebookIdExt.TRASH -> true
+    _fabVisible.value = when (_notebookId) {
+      NotebookIdExt.ALLNOTES -> true
+      NotebookIdExt.ARCHIVED -> false
+      NotebookIdExt.SKETCH -> false
+      NotebookIdExt.TRASH -> false
       else -> true
     }
 
-    val listener = object : NotesRepository.LoadListener {
+    _emptyClickable.value = when (_notebookId) {
+      NotebookIdExt.ARCHIVED, NotebookIdExt.SKETCH, NotebookIdExt.TRASH -> false
+      else -> true
+    }
+
+    val listener = object :
+      Repository.LoadListener {
       override fun onSuccess(item: Any) {
         val notes = item as List<NoteWithOthers>
         var tmpNotes = when (_notebookId) {
@@ -117,7 +137,7 @@ class NotesViewModel : ViewModel() {
           NotebookIdExt.ARCHIVED -> notes.filter { it.note.archived && !it.note.trashed }
           NotebookIdExt.SKETCH -> notes.filter { it.note.sketch && !it.note.trashed }
           NotebookIdExt.TRASH -> notes.filter { it.note.trashed }
-          else -> notes.filter { it.note.id != _notebookId || it.note.trashed || it.note.sketch || it.note.archived }
+          else -> notes.filter { it.note.notebookId == _notebookId && !it.note.trashed && !it.note.sketch && !it.note.archived }
         }
         tmpNotes = when (_sort) {
           SortType.CREATION -> tmpNotes.sortedWith(
@@ -156,7 +176,7 @@ class NotesViewModel : ViewModel() {
   }
 
   fun addNewNote() {
-    _addNoteEvent.value = Any()
+    _addNoteEvent.value = _notebookId
   }
 
   fun openNoteDetails(note: Note) {
@@ -183,23 +203,16 @@ class NotesViewModel : ViewModel() {
     if (_notebookId == notebookId) return
 
     _notebookId = notebookId
-    _notebookType.value = when (notebookId) {
-      NotebookIdExt.ALLNOTES -> NotebookIdExt.ALLNOTES
-      NotebookIdExt.ARCHIVED -> NotebookIdExt.ARCHIVED
-      NotebookIdExt.SKETCH -> NotebookIdExt.SKETCH
-      NotebookIdExt.TRASH -> NotebookIdExt.TRASH
-      else -> NotebookIdExt.ALLNOTES
-    }
     this._notebookName.value = notebookName
     load()
   }
 
   fun addNewNotebook() {
-
+    AddEditNotebookDialogFragment.getInstance(-1L,fragment.activity!!).show(fragment.parentFragmentManager,TAG)
   }
 
   fun modifyNotebook(notebookId: Long) {
-
+    AddEditNotebookDialogFragment.getInstance(notebookId,fragment.activity!!).show(fragment.parentFragmentManager,TAG)
   }
 
 

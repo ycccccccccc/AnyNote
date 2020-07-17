@@ -1,38 +1,55 @@
 package org.wangyichen.anynote.source.local.repository
 
 import android.content.Context
-import org.wangyichen.anynote.source.Entity.NoteWithOthers
+import org.wangyichen.anynote.module.DEFAULT_NOTEBOOK_ID
 import org.wangyichen.anynote.source.Entity.Notebook
 import org.wangyichen.anynote.source.local.NoteDatabase
+import org.wangyichen.anynote.source.local.Repository
 import org.wangyichen.anynote.utils.AppExecutors
+import java.lang.Exception
 
 class NotebooksRepository private constructor(
     val database: NoteDatabase,
     val executors: AppExecutors
 ) {
-  private val dao = database.notebooksDao()
+  private val notebooksDao = database.notebooksDao()
+  private val notesDao = database.notesDao()
 
   fun saveNotebook(notebook: Notebook) {
     executors.diskIO.execute {
-      dao.insertNotebook(notebook)
+      notebooksDao.insertNotebook(notebook)
     }
   }
 
-  fun deleteNotebook(notebook: Notebook) {
+  fun deleteNotebook(notebookId: Long) {
     executors.diskIO.execute {
-      dao.deleteNotebook(notebook)
+      notesDao.updateTrashByNotebookId(true,notebookId)
+      notesDao.updateNotebookId(notebookId, DEFAULT_NOTEBOOK_ID)
+      notebooksDao.deleteNotebookById(notebookId)
     }
   }
 
   fun updateNotebook(notebook: Notebook) {
     executors.diskIO.execute {
-      dao.updateNotebook(notebook)
+      notebooksDao.updateNotebook(notebook)
     }
   }
 
-  fun getNotebookById(id: Long) = dao.getNotebookById(id)
+  fun getNotebookById(id: Long) = notebooksDao.getNotebookById(id)
 
-  fun getNotebooks() = dao.getNotebooks()
+  fun getNoLiveNotebookById(notebookid: Long, listener: Repository.LoadListener) {
+    executors.diskIO.execute {
+      try {
+        val notebook = notebooksDao.getNoLiveNotebookById(notebookid)
+        listener.onSuccess(notebook)
+      } catch (e: Exception) {
+        listener.onError(e)
+      }
+    }
+  }
+
+
+  fun getNotebooks() = notebooksDao.getNotebooks()
 
   companion object {
     private var INSTANCE: NotebooksRepository? = null

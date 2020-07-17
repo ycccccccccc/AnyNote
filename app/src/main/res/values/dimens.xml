@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <dimen name="titleTextSize">20sp</dimen>
+  <dimen name="titleTextSize">18sp</dimen>
   <dimen name="float_margin">16dp</dimen>
+  <dimen name="item_color_circular_size">60dp</dimen>
 </resources>

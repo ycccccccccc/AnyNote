@@ -28,11 +28,16 @@ class NavigatorFragment : BaseFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    observeLiveData()
+    setupAdapter()
+  }
+
+  private fun setupAdapter() {
     adapter = NotebooksAdapter(notebooks, viewModel, activity?.findViewById(R.id.drawer_layout)!!)
     items_nav.adapter = adapter
     val manager = LinearLayoutManager(context)
     items_nav.layoutManager = manager
-    observeLiveData()
+    items_nav.addItemDecoration(NotebookDecoration())
   }
 
   private fun observeLiveData() {

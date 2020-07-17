@@ -12,8 +12,8 @@ interface NotebooksDao {
   fun insertNotebook(notebook: Notebook)
 
   //  删
-  @Delete
-  fun deleteNotebook(notebook: Notebook)
+  @Query("delete from notebooks where notebookid = :notebookId")
+  fun deleteNotebookById(notebookId: Long)
 
   //  改
   @Update
@@ -25,4 +25,7 @@ interface NotebooksDao {
 
   @Query("select * from notebooks where notebookid = :notebookId")
   fun getNotebookById(notebookId: Long): LiveData<Notebook>
+
+  @Query("select * from notebooks where notebookid = :notebookId")
+  fun getNoLiveNotebookById(notebookId: Long): Notebook
 }

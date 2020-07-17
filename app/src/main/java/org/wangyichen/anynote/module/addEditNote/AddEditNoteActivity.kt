@@ -5,6 +5,7 @@ import android.view.MenuItem
 import androidx.lifecycle.Observer
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.base.BaseActivity
+import org.wangyichen.anynote.module.DEFAULT_NOTEBOOK_ID
 import org.wangyichen.anynote.utils.IntentUtils
 import org.wangyichen.anynote.utils.ext.setupActionBar
 
@@ -35,7 +36,10 @@ class AddEditNoteActivity : BaseActivity(), AddEditNoteNavigator {
     supportFragmentManager.beginTransaction().apply {
       replace(
         R.id.contentFrame,
-        AddEditNoteFragment.newInstance(intent.getLongExtra(EXTRA_NOTE_ID, -1L))
+        AddEditNoteFragment.newInstance(
+          intent.getLongExtra(EXTRA_NOTE_ID, -1L),
+          intent.getLongExtra(EXTRA_NOTEBOOK_ID, DEFAULT_NOTEBOOK_ID)
+        )
       )
       commit()
     }
@@ -74,5 +78,6 @@ class AddEditNoteActivity : BaseActivity(), AddEditNoteNavigator {
 
   companion object {
     const val EXTRA_NOTE_ID = "NOTE_ID"
+    const val EXTRA_NOTEBOOK_ID = "EXTRA_NOTEBOOK_ID"
   }
 }

@@ -28,9 +28,14 @@ interface NotesDao {
   @Query("update notes set trashed = :trashed where noteid =:noteid")
   fun updateTrashById(trashed: Boolean, noteid: Long)
 
+  @Query("update notes set trashed = :trashed where belongnotebookid =:notebookid")
+  fun updateTrashByNotebookId(trashed: Boolean, notebookid: Long)
 
   @Query("update notes set topping = :topping where noteid =:noteid")
   fun updateTopping(topping: Boolean, noteid: Long)
+
+  @Query("update notes set belongnotebookid = :newNotebookId where belongnotebookid =:oldNotebookId")
+  fun updateNotebookId(oldNotebookId: Long, newNotebookId: Long)
 
   @Query("update notes set archived = :archived where noteid in (:noteid)")
   fun updateArchiveds(archived: Boolean, noteid: List<Long>)

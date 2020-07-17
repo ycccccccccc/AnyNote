@@ -6,8 +6,6 @@ import org.wangyichen.anynote.module.AnyNoteApplication
 import org.wangyichen.anynote.source.Entity.Note
 import org.wangyichen.anynote.source.Entity.NoteWithOthers
 import org.wangyichen.anynote.source.local.Repository
-import org.wangyichen.anynote.source.local.repository.NotesRepository
-import org.wangyichen.anynote.utils.AppExecutors
 import org.wangyichen.anynote.utils.ConfermDialogFragment
 import org.wangyichen.anynote.utils.TimeUtils
 import org.wangyichen.anynote.utils.ext.showSnackbar
@@ -45,7 +43,6 @@ class AddEditNoteViewModel : ViewModel() {
 
   private val _notebooks = repository.NOTEBOOKS.getNotebooks()
   val notebooks: LiveData<List<String>> = Transformations.map(_notebooks) { notebooks ->
-    cyclicBarrier.await()
     notebooks.map { it.name }
   }
 
@@ -125,7 +122,11 @@ class AddEditNoteViewModel : ViewModel() {
       }
     }
     val title = "是否放弃编辑"
-    ConfermDialogFragment(title, "", listener).show(
+    ConfermDialogFragment(
+      title,
+      "",
+      listener
+    ).show(
       fragment.parentFragmentManager,
       this.javaClass.name
     )
@@ -202,22 +203,26 @@ class AddEditNoteViewModel : ViewModel() {
     ).show(fragment.parentFragmentManager, javaClass.name)
   }
 
-  fun start(fragment: AddEditNoteFragment, noteId: Long) {
+  fun start(fragment: AddEditNoteFragment, noteId: Long, notebookId: Long?) {
     this.fragment = fragment
     this._noteId = noteId
     notebookPos.observe(fragment.viewLifecycleOwner, Observer {
       _notebookId = _notebooks.value?.get(it)?.id ?: _notebookId
       setColor()
     })
-
+    notebooks.observe(fragment.viewLifecycleOwner, Observer {
+      cyclicBarrier.await()
+    })
 
     if (noteId == -1L) {
       newNote = true
+      _notebookId = notebookId!!
       Thread { cyclicBarrier.await() }.start()
     } else {
       newNote = false
 
-      val listener = object : NotesRepository.LoadListener {
+      val listener = object :
+        Repository.LoadListener {
         override fun onSuccess(item: Any) {
           val note = item as NoteWithOthers
           title.postValue(note.note.title)
@@ -253,7 +258,11 @@ class AddEditNoteViewModel : ViewModel() {
       }
     }
     val title = "是否${if (archived) "取消归档" else "归档"}"
-    ConfermDialogFragment(title, "", listener).show(
+    ConfermDialogFragment(
+      title,
+      "",
+      listener
+    ).show(
       fragment.parentFragmentManager,
       this.javaClass.name
     )
@@ -274,7 +283,11 @@ class AddEditNoteViewModel : ViewModel() {
       }
     }
     val title = "是否删除笔记"
-    ConfermDialogFragment(title, "", listener).show(
+    ConfermDialogFragment(
+      title,
+      "",
+      listener
+    ).show(
       fragment.parentFragmentManager,
       this.javaClass.name
     )
@@ -292,7 +305,11 @@ class AddEditNoteViewModel : ViewModel() {
       }
     }
     val title = "是否${if (topping) "取消置顶" else "置顶"}"
-    ConfermDialogFragment(title, "", listener).show(
+    ConfermDialogFragment(
+      title,
+      "",
+      listener
+    ).show(
       fragment.parentFragmentManager,
       this.javaClass.name
     )

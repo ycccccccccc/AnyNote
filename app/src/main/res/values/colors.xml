@@ -6,4 +6,5 @@
   <color name="colorLight">#718792</color>
   <color name="colorSecondDark">#9b0000</color>
   <color name="colorSecondLight">#ff5131</color>
+  <color name="gray_light">#E0E0E0</color>
 </resources>

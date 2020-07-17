@@ -1,26 +1,19 @@
 package org.wangyichen.anynote.module.notes
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_notes.*
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.base.BaseActivity
 import org.wangyichen.anynote.databinding.ActivityNotesBinding
 import org.wangyichen.anynote.module.addEditNote.AddEditNoteActivity
 import org.wangyichen.anynote.module.noteDetail.NoteDetailActivity
-import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.local.Repository
 import org.wangyichen.anynote.utils.IntentUtils
-import org.wangyichen.anynote.utils.TimeUtils
 import org.wangyichen.anynote.utils.ext.setupActionBar
+import org.wangyichen.anynote.widget.addEditNotebookDialog.AddEditNotebookViewModel
 
 class NotesActivity : BaseActivity(), NotesNavigator, NotesItemNavigator {
   lateinit var binding: ActivityNotesBinding
@@ -43,7 +36,7 @@ class NotesActivity : BaseActivity(), NotesNavigator, NotesItemNavigator {
         this@NotesActivity.openNoteDetails(id)
       })
       addNoteEvent.observe(this@NotesActivity, Observer {
-        this@NotesActivity.addNote()
+        this@NotesActivity.addNote(it)
       })
     }
 
@@ -73,9 +66,14 @@ class NotesActivity : BaseActivity(), NotesNavigator, NotesItemNavigator {
     }
   }
 
-  override fun addNote() {
+  override fun addNote(notebookId: Long) {
     val intent = Intent(this, AddEditNoteActivity::class.java)
-    IntentUtils.startActivity(this, intent)
+    intent.putExtra(AddEditNoteActivity.EXTRA_NOTEBOOK_ID, notebookId)
+    IntentUtils.startActivityForResult(
+      this,
+      intent,
+      IntentUtils.REQUEST_CODE_ADD_EDIT_NOTE_ACTIVITY
+    )
   }
 
 

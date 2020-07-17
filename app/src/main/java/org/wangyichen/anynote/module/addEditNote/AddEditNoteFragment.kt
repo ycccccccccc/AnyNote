@@ -34,7 +34,11 @@ class AddEditNoteFragment : BaseFragment() {
 
   override fun onResume() {
     super.onResume()
-    binding.viewmodel?.start(this, arguments?.getLong(ARGUMENT_NOTE_ID)!!)
+    binding.viewmodel?.start(
+      this,
+      arguments?.getLong(ARGUMENT_NOTE_ID)!!,
+      arguments?.getLong(ARGUMENT_NOTEBOOK_ID)
+    )
   }
 
   override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -97,11 +101,13 @@ class AddEditNoteFragment : BaseFragment() {
 
 
   companion object {
-    const val ARGUMENT_NOTE_ID = "TASK_ID"
+    const val ARGUMENT_NOTE_ID = "NOTE_ID"
+    const val ARGUMENT_NOTEBOOK_ID = "ARGUMENT_NOTEBOOK_ID"
 
-    fun newInstance(noteId: Long) = AddEditNoteFragment().apply {
+    fun newInstance(noteId: Long, notebookId: Long) = AddEditNoteFragment().apply {
       arguments = Bundle().apply {
         putLong(ARGUMENT_NOTE_ID, noteId)
+        putLong(ARGUMENT_NOTEBOOK_ID, notebookId)
       }
     }
   }

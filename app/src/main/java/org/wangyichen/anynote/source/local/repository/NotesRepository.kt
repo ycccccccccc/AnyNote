@@ -2,8 +2,8 @@ package org.wangyichen.anynote.source.local.repository
 
 import android.content.Context
 import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.Entity.NoteWithOthers
 import org.wangyichen.anynote.source.local.NoteDatabase
+import org.wangyichen.anynote.source.local.Repository
 import org.wangyichen.anynote.utils.AppExecutors
 import java.lang.Exception
 
@@ -55,6 +55,18 @@ class NotesRepository private constructor(
     }
   }
 
+  fun trashNotesByNotebookId(notebookId: Long) {
+    executors.diskIO.execute {
+      notesDao.updateTrashByNotebookId(true, notebookId)
+    }
+  }
+
+  fun updateNotebookId(oldNotebookId: Long, newNotebookId: Long) {
+    executors.diskIO.execute {
+      notesDao.updateNotebookId(oldNotebookId, newNotebookId)
+    }
+  }
+
   fun untrashNotes(notes: List<Note>) {
     executors.diskIO.execute {
       notesDao.updateTrashs(false, notes.map { it.id!! })
@@ -94,7 +106,7 @@ class NotesRepository private constructor(
     }
   }
 
-  fun getNotes(listener: LoadListener) {
+  fun getNotes(listener: Repository.LoadListener) {
     executors.diskIO.execute {
       try {
         val notes = notesDao.getNotes()
@@ -106,7 +118,7 @@ class NotesRepository private constructor(
   }
 
   fun getNoteById(noteid: Long) = notesDao.getNoteById(noteid)
-  fun getNoteById(noteid: Long, listener: LoadListener) {
+  fun getNoteById(noteid: Long, listener: Repository.LoadListener) {
     executors.diskIO.execute {
       try {
         val note = notesDao.getNoLiveNoteById(noteid)
@@ -138,8 +150,4 @@ class NotesRepository private constructor(
     }
   }
 
-  interface LoadListener {
-    fun onSuccess(item: Any)
-    fun onError(e: Exception)
-  }
 }

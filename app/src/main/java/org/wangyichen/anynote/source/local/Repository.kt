@@ -5,6 +5,7 @@ import org.wangyichen.anynote.source.local.dao.PreferencesRepository
 import org.wangyichen.anynote.source.local.repository.AttachmentsRepository
 import org.wangyichen.anynote.source.local.repository.NotebooksRepository
 import org.wangyichen.anynote.source.local.repository.NotesRepository
+import java.lang.Exception
 
 class Repository private constructor(context: Context) {
   val NOTES: NotesRepository by lazy { NotesRepository.getInstance(context) }
@@ -23,5 +24,10 @@ class Repository private constructor(context: Context) {
         return INSTANCE !!
       }
     }
+  }
+
+  interface LoadListener {
+    fun onSuccess(item: Any)
+    fun onError(e: Exception)
   }
 }

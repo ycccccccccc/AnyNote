@@ -1,8 +1,6 @@
 package org.wangyichen.anynote.module.notes
 
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,8 +13,8 @@ import org.wangyichen.anynote.source.Entity.Note
 import org.wangyichen.anynote.source.Entity.NoteWithOthers
 import org.wangyichen.anynote.source.Entity.Notebook
 import org.wangyichen.anynote.utils.ConfermDialogFragment
-import org.wangyichen.anynote.utils.TimeUtils
 import org.wangyichen.anynote.utils.constant.FilterType
+import org.wangyichen.anynote.utils.constant.NotebookIdExt
 import org.wangyichen.anynote.utils.constant.SortType
 import org.wangyichen.anynote.utils.ext.showSnackbar
 
@@ -26,7 +24,6 @@ class NotesFragment : BaseFragment() {
 
   private lateinit var binding: FragNotesBinding
   private lateinit var adapter: NotesAdapter
-//  private lateinit var menu: Menu
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -74,10 +71,19 @@ class NotesFragment : BaseFragment() {
 
   override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     inflater.inflate(R.menu.menu_notes, menu)
-//    TODO
-//    binding.viewmodel?.isTrash?.observe(viewLifecycleOwner, Observer { isTrash ->
-//      menu.findItem(R.id.clear_trash).setVisible(isTrash)
-//    })
+
+    binding.viewmodel?.notebookType?.observe(viewLifecycleOwner, Observer { type ->
+      when (type) {
+        NotebookIdExt.ALLNOTES ->
+      menu.findItem(R.id.clear_trash).setVisible(false)
+        NotebookIdExt.ARCHIVED ->
+      menu.findItem(R.id.clear_trash).setVisible(false)
+        NotebookIdExt.SKETCH ->
+      menu.findItem(R.id.clear_trash).setVisible(false)
+        NotebookIdExt.TRASH ->
+      menu.findItem(R.id.clear_trash).setVisible(true)
+      }
+    })
   }
 
   override fun onResume() {
@@ -107,7 +113,11 @@ class NotesFragment : BaseFragment() {
           override fun onNegtive() {
           }
         }
-        ConfermDialogFragment("是否取消置顶", "", listener).show(parentFragmentManager, "untopping")
+        ConfermDialogFragment(
+          "是否取消置顶",
+          "",
+          listener
+        ).show(parentFragmentManager, "untopping")
         return conferm
       }
     }
@@ -116,6 +126,7 @@ class NotesFragment : BaseFragment() {
     notes_list.adapter = adapter
     val manager = LinearLayoutManager(context)
     notes_list.layoutManager = manager
+    notes_list.addItemDecoration(NoteDecoration())
   }
 
   private fun observeLivedata() {

@@ -78,7 +78,6 @@ class NoteDetailFragment : BaseFragment() {
       }
       else -> super.onOptionsItemSelected(item)
     }
-
   private fun observeLivedata() {
     binding.viewmodel?.run {
       color.observe(viewLifecycleOwner, Observer {
@@ -88,6 +87,7 @@ class NoteDetailFragment : BaseFragment() {
       showSnackBarEvent.observe(viewLifecycleOwner, Observer {
         view?.showSnackbar(it, Snackbar.LENGTH_SHORT)
       })
+
     }
   }
 
