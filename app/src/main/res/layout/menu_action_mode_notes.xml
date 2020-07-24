@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <data>
+
+    <import type="android.view.View" />
+    <variable
+      name="viewmodel"
+      type="org.wangyichen.anynote.module.notes.NotesViewModel" />
+  </data>
+
+  <LinearLayout
+    android:id="@+id/action_menu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:visibility="@{viewmodel.actionMode? View.VISIBLE : View.GONE}">
+
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="置顶"
+      android:onClick="@{()->viewmodel.onActionTopping()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeToppingVisibility}"
+      android:id="@+id/action_topping" />
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="归档"
+      android:onClick="@{()->viewmodel.onActionArchive()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeArchiveVisibility}"
+      android:id="@+id/action_archive" />
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="取消归档"
+      android:onClick="@{()->viewmodel.onActionUnarchive()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeUnarchiveVisibility}"
+      android:id="@+id/action_unarchive" />
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="删除"
+      android:onClick="@{()->viewmodel.onActionDelete()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeDeleteVisibility}"
+      android:id="@+id/action_delete" />
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="恢复"
+      android:onClick="@{()->viewmodel.onActionRestore()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeRestoreVisibility}"
+      android:id="@+id/action_restore" />
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="改变笔记本"
+      android:onClick="@{()->viewmodel.onActionChangeNotebook()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeMoveVisibility}"
+      android:id="@+id/action_move" />
+    <Button
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="彻底删除"
+      android:onClick="@{()->viewmodel.onActionClear()}"
+      android:textColor="@android:color/white"
+      android:background="@drawable/shape_action_menu_item"
+      android:visibility="@{viewmodel.actionModeClearVisibility}"
+      android:id="@+id/action_clear" />
+  </LinearLayout>
+
+</layout>

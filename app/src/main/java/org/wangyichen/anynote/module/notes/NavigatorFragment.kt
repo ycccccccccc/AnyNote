@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.frag_nav_notebooks.*
 import org.wangyichen.anynote.R
@@ -28,23 +29,20 @@ class NavigatorFragment : BaseFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    observeLiveData()
     setupAdapter()
   }
 
   private fun setupAdapter() {
-    adapter = NotebooksAdapter(notebooks, viewModel, activity?.findViewById(R.id.drawer_layout)!!)
+    adapter = NotebooksAdapter(viewModel, activity?.findViewById(R.id.drawer_layout)!!)
     items_nav.adapter = adapter
     val manager = LinearLayoutManager(context)
     items_nav.layoutManager = manager
     items_nav.addItemDecoration(NotebookDecoration())
   }
 
-  private fun observeLiveData() {
+  override fun observeLiveData() {
     viewModel.notebooks.observe(viewLifecycleOwner, Observer {
-      notebooks.clear()
-      notebooks.addAll(it)
-      adapter.notifyDataSetChanged()
+      adapter.setNotebooks(it)
     })
   }
 

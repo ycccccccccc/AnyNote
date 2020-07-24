@@ -21,17 +21,12 @@
     </menu>
   </item>
   <item
-    android:id="@+id/show"
-    android:icon="@drawable/zhanshi_white"
-    android:title="展示方式"
-    app:showAsAction="ifRoom">
-    <menu>
-      <item
-        android:id="@+id/noImage"
-        android:title="不显示略缩图" />
-      <item
-        android:id="@+id/hasImage"
-        android:title="显示略缩图" />
-    </menu>
-  </item>
+    android:id="@+id/select_all"
+    android:title="全选"
+    app:showAsAction="ifRoom"/>
+  <item
+    android:id="@+id/cancel"
+    android:title="取消"
+    app:showAsAction="ifRoom"/>
+
 </menu>

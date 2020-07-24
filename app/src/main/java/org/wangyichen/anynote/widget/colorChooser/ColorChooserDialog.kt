@@ -1,8 +1,6 @@
 package org.wangyichen.anynote.widget.colorChooser
 
-import android.graphics.PorterDuff
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +18,7 @@ class ColorChooserDialog : DialogFragment() {
   private lateinit var owner: ViewModelStoreOwner
   lateinit var binding: DialogColorChooserBinding
   lateinit var listener: SaveColorListener
+  private lateinit var adapter:PresetColorAdapter
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -37,6 +36,7 @@ class ColorChooserDialog : DialogFragment() {
     super.onViewCreated(view, savedInstanceState)
     setUpSeekBar()
     observeLiveData()
+    binding.viewmodel?.start(arguments?.getInt(COLOR)!!)
     setupAdapter()
   }
 
@@ -47,9 +47,9 @@ class ColorChooserDialog : DialogFragment() {
     val height =
       SystemUtils.getHeightByPercentage(getString(R.string.color_choose_dialog_height).toFloat())
     dialog?.window?.setLayout(width, height)
-    binding.viewmodel?.start(arguments?.getInt(COLOR)!!)
   }
 
+//  自定义颜色
   private fun setUpSeekBar() {
     val listener = object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(p0: SeekBar, p1: Int, p2: Boolean) {
@@ -78,7 +78,8 @@ class ColorChooserDialog : DialogFragment() {
   }
 
   private fun setupAdapter() {
-    color_lists.adapter = PresetColorAdapter(binding.viewmodel!!)
+    adapter = PresetColorAdapter(binding.viewmodel!!)
+    color_lists.adapter = adapter
     color_lists.layoutManager = GridLayoutManager(context, 4)
   }
 
@@ -86,10 +87,7 @@ class ColorChooserDialog : DialogFragment() {
   private fun observeLiveData() {
     binding.viewmodel?.run {
       colorChangeEvent.observe(viewLifecycleOwner, Observer {
-        custom_color.drawable.setColorFilter(
-          it,
-          PorterDuff.Mode.MULTIPLY
-        )
+        custom_color.setColorFilter(it)
       })
       closeEvent.observe(viewLifecycleOwner, Observer {
         val content = it.getContent()
@@ -102,6 +100,11 @@ class ColorChooserDialog : DialogFragment() {
         if (content != null) {
           listener.onSave(content)
           this@ColorChooserDialog.dismiss()
+        }
+      })
+      showPreset.observe(viewLifecycleOwner, Observer {
+        if (it) {
+          adapter.refresh()
         }
       })
     }

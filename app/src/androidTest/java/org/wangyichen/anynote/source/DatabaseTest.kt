@@ -37,9 +37,7 @@ class DatabaseTest {
 //    ???
     var notes = database.notesDao().getNotes()
     AppExecutors.getInstance().mainThread.execute {
-      notes.observeForever { list ->
-        Log.d("ttt", "${list.size}")
-      }
+
     }
   }
 

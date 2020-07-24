@@ -23,6 +23,12 @@
   </array>
   <string name="color_choose_dialog_width">0.80f</string>
   <string name="color_choose_dialog_height">0.55f</string>
+  <string name="share_image_dialog_width">0.80f</string>
+  <string name="share_image_dialog_height">0.70f</string>
   <string name="add_edit_notebook_dialog_width">0.70f</string>
   <string name="add_edit_notebook_dialog_height">0.50f</string>
+  <string name="edit_cover_dialog_width">0.90f</string>
+  <string name="edit_cover_dialog_height">0.80f</string>
+  <string name="notebook_chooser_dialog_width">0.70f</string>
+  <string name="notebook_chooser_dialog_height">0.50f</string>
 </resources>

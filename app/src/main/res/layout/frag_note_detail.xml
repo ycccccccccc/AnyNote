@@ -11,8 +11,10 @@
   </data>
 
   <ScrollView
+    android:id="@+id/scroll_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:scrollbars="none">
 
     <LinearLayout
       android:layout_width="match_parent"
@@ -31,17 +33,29 @@
           android:layout_marginEnd="8dp"
           android:layout_marginTop="8dp"
           android:src="@drawable/note_blue"
-          android:visibility="@{viewmodel.imageVisibility}"
+          android:onClick="@{()->viewmodel.onImageClicked()}"
+          android:uri="@{viewmodel.imageUri}"
+          android:visibility="@{viewmodel.hasImage ? View.VISIBLE : View.GONE}"
           app:layout_constraintBottom_toTopOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="parent"
           tools:srcCompat="@tools:sample/avatars" />
+
+        <View
+          android:layout_width="0dp"
+          android:layout_height="1px"
+          android:background="@color/colorPrimary"
+          app:layout_constraintEnd_toEndOf="@+id/tv_title"
+          app:layout_constraintHorizontal_bias="0.492"
+          app:layout_constraintStart_toStartOf="@+id/tv_title"
+          app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
         <ImageView
           android:id="@+id/iv_alarm"
           android:layout_width="wrap_content"
           android:layout_height="35dp"
           android:layout_marginEnd="8dp"
+          android:onClick="@{()->viewmodel.alarmClicked()}"
           android:visibility="@{viewmodel.alarmShow==2?View.VISIBLE:View.GONE}"
           app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
@@ -53,6 +67,7 @@
           android:layout_width="wrap_content"
           android:layout_height="35dp"
           android:layout_marginEnd="8dp"
+          android:onClick="@{()->viewmodel.alarmClicked()}"
           android:visibility="@{viewmodel.alarmShow==1?View.VISIBLE:View.GONE}"
           app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
@@ -64,6 +79,7 @@
           android:layout_width="wrap_content"
           android:layout_height="35dp"
           android:layout_marginEnd="8dp"
+          android:onClick="@{()->viewmodel.alarmClicked()}"
           android:visibility="@{viewmodel.alarmShow==0?View.VISIBLE:View.GONE}"
           app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
@@ -109,11 +125,12 @@
           android:id="@+id/tv_title"
           android:layout_width="0dp"
           android:layout_height="wrap_content"
+          android:minHeight="90dp"
           android:layout_marginEnd="16dp"
           android:layout_marginStart="16dp"
           android:layout_marginTop="8dp"
           android:text="@{viewmodel.title}"
-          android:textSize="30sp"
+          android:textSize="24sp"
           app:layout_constraintEnd_toStartOf="@+id/iv_image"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent"
@@ -129,7 +146,6 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
       </androidx.constraintlayout.widget.ConstraintLayout>
-
       <View
         android:layout_width="match_parent"
         android:layout_height="5px"

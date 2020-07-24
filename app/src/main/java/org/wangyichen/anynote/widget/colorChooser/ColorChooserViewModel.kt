@@ -3,8 +3,8 @@ package org.wangyichen.anynote.widget.colorChooser
 import android.graphics.Color
 import androidx.lifecycle.*
 import org.wangyichen.anynote.Event
-import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
 import org.wangyichen.anynote.R
+import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
 
 class ColorChooserViewModel : ViewModel() {
   private val colors = context.resources.getIntArray(R.array.preset_colors)

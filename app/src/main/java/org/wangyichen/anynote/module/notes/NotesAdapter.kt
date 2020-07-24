@@ -2,23 +2,39 @@ package org.wangyichen.anynote.module.notes
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import org.wangyichen.anynote.R
-import org.wangyichen.anynote.source.Entity.NoteWithOthers
+import org.wangyichen.anynote.source.Entity.Note
 import org.wangyichen.anynote.source.Entity.Notebook
 import org.wangyichen.anynote.utils.constant.SortType
 
 class NotesAdapter(
-  val notes: List<NoteWithOthers>,
-  val notebooks: List<Notebook>,
-  val listener: NotesItemActionListener
+  val viewmodel: NotesViewModel
 ) :
   RecyclerView.Adapter<NotesAdapter.MainNoteViewHolder>() {
+
+  internal var notes = ArrayList<NoteWraper>()
+  private var notebooks = ArrayList<Notebook>()
+  private var selectedNotes = HashSet<Note>()
+  var isActionMode = false
+  val listener: NotesItemActionListener = object : NotesItemActionListener {
+    override fun onNoteClicked(note: Note) {
+      viewmodel.openNoteDetails(note)
+    }
+
+    override fun onToppingClicked(note: Note) {
+      viewmodel.unToppingNote(note)
+    }
+  }
+
 
   inner class MainNoteViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     val iv_alarm: ImageView = view.findViewById(R.id.iv_alarm)
@@ -30,6 +46,7 @@ class NotesAdapter(
     val tv_time: TextView = view.findViewById(R.id.tv_time)
     val tv_alarm_time: TextView = view.findViewById(R.id.tv_alarm_time)
     val note_color: TextView = view.findViewById(R.id.note_color)
+    val checkBox: CheckBox = view.findViewById(R.id.checkbox)
   }
 
   var sort: Long = SortType.CREATION
@@ -46,20 +63,64 @@ class NotesAdapter(
   override fun getItemCount() = notes.size
 
   override fun onBindViewHolder(holder: MainNoteViewHolder, position: Int) {
-    val notesWithOthers = notes[position]
-    val note = notesWithOthers.note
+    val noteWraper = notes[position]
+    val note = noteWraper.note
 
     holder.view.setOnClickListener {
-      listener.onNoteClicked(note)
+      if (isActionMode) {
+        if (noteWraper.checked) {
+          noteWraper.checked = false
+          holder.checkBox.isChecked = false
+          selectedNotes.remove(note)
+        } else {
+          noteWraper.checked = true
+          holder.checkBox.isChecked = true
+          selectedNotes.add(note)
+
+        }
+        viewmodel.onSelectedNotesChanged(selectedNotes)
+      } else {
+        listener.onNoteClicked(note)
+      }
     }
+    holder.view.setOnLongClickListener {
+      if (!isActionMode) {
+        isActionMode = true
+        for (note in notes) note.checked = false
+        selectedNotes.clear()
+        selectedNotes.add(note)
+        noteWraper.checked = true
+        viewmodel.startActionMode()
+        viewmodel.onSelectedNotesChanged(selectedNotes)
+        notifyDataSetChanged()
+        true
+      } else {
+        false
+      }
+    }
+
+    if (isActionMode) {
+      holder.checkBox.visibility = View.VISIBLE
+      holder.checkBox.isChecked = noteWraper.checked
+    } else {
+      holder.checkBox.visibility = View.GONE
+    }
+
     holder.iv_topping.apply {
       visibility = if (!note.topping) View.GONE else View.VISIBLE
       setOnClickListener {
-        visibility = if (listener.onToppingClicked(note)) View.GONE else View.VISIBLE
+        listener.onToppingClicked(note)
       }
+      isClickable = !isActionMode
     }
     holder.iv_image.apply {
-
+      val uri = note.coverImage
+      visibility = if (uri.isNotEmpty()) {
+        Glide.with(this).load(Uri.parse(uri)).centerCrop().into(this)
+        View.VISIBLE
+      } else {
+        View.GONE
+      }
     }
     holder.tv_title.text = note.title
     holder.tv_content.text = note.content
@@ -95,4 +156,32 @@ class NotesAdapter(
     }
     bg.setColor(notebook?.color ?: Color.TRANSPARENT)
   }
+
+  fun setNotes(notes: List<Note>) {
+    this.notes.clear()
+    this.notes.addAll(notes.map { NoteWraper(false, it) })
+    notifyDataSetChanged()
+  }
+
+  fun setNotebooks(notebooks: List<Notebook>) {
+    this.notebooks.clear()
+    this.notebooks.addAll(notebooks)
+    notifyDataSetChanged()
+  }
+
+  fun closeActionMode() {
+    isActionMode = false
+    notifyDataSetChanged()
+  }
+
+  fun selectAll() {
+    for (note in notes) {
+      note.checked = true
+      selectedNotes.add(note.note)
+    }
+    viewmodel.onSelectedNotesChanged(selectedNotes)
+    notifyDataSetChanged()
+  }
+
+  class NoteWraper(var checked: Boolean, val note: Note)
 }

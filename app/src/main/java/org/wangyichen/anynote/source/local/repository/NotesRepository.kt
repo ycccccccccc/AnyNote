@@ -8,7 +8,7 @@ import org.wangyichen.anynote.utils.AppExecutors
 import java.lang.Exception
 
 class NotesRepository private constructor(
-  private val database: NoteDatabase,
+  database: NoteDatabase,
   private val executors: AppExecutors
 ) {
   private val notesDao = database.notesDao()
@@ -19,15 +19,21 @@ class NotesRepository private constructor(
     }
   }
 
-  fun deleteNoteById(id: Long) {
+  fun deleteNoteById(id: String) {
     executors.diskIO.execute {
       notesDao.deleteNoteById(id)
     }
   }
 
-  fun deleteNotesById(ids: List<Long>) {
+  fun deleteNotesById(ids: List<String>) {
     executors.diskIO.execute {
       notesDao.deleteNotesById(ids)
+    }
+  }
+
+  fun deleteNotes() {
+    executors.diskIO.execute {
+      notesDao.deleteNotes(true)
     }
   }
 
@@ -37,21 +43,26 @@ class NotesRepository private constructor(
     }
   }
 
-  fun trashNoteById(noteId: Long) {
+  fun trashNoteById(noteId: String) {
     executors.diskIO.execute {
       notesDao.updateTrashById(true, noteId)
     }
   }
-
-  fun untrashNote(note: Note) {
+  fun untrashNoteById(noteId: String) {
     executors.diskIO.execute {
-      notesDao.updateTrashById(false, note.id!!)
+      notesDao.updateTrashById(false, noteId)
     }
   }
 
-  fun trashNotes(notes: List<Note>) {
+  fun untrashNotes(noteIds: List<String>) {
     executors.diskIO.execute {
-      notesDao.updateTrashs(true, notes.map { it.id!! })
+      notesDao.updateTrashs(false, noteIds)
+    }
+  }
+
+  fun trashNotes(noteIds: List<String>) {
+    executors.diskIO.execute {
+      notesDao.updateTrashs(true, noteIds)
     }
   }
 
@@ -67,46 +78,52 @@ class NotesRepository private constructor(
     }
   }
 
-  fun untrashNotes(notes: List<Note>) {
+  fun updatealarmById(alarm: Long, noteId: String) {
     executors.diskIO.execute {
-      notesDao.updateTrashs(false, notes.map { it.id!! })
+      notesDao.updateAlarm(alarm, noteId)
     }
   }
+
 
 
   fun untoppingNote(note: Note) {
     executors.diskIO.execute {
-      notesDao.updateTopping(false, note.id!!)
+      notesDao.updateToppingById(false, note.id!!)
     }
   }
 
-  fun changeNoteToppingById(noteId: Long, topping: Boolean) {
+  fun changeNoteToppingById(noteId: String, topping: Boolean) {
     executors.diskIO.execute {
-      notesDao.updateTopping(topping, noteId)
+      notesDao.updateToppingById(topping, noteId)
+    }
+  }
+  fun toppingNotes(noteIds: List<String>) {
+    executors.diskIO.execute {
+      notesDao.toppingNotes(true, noteIds)
     }
   }
 
-  fun changeNoteArchiveById(noteId: Long, archived: Boolean) {
+  fun changeNoteArchiveById(noteId: String, archived: Boolean) {
     executors.diskIO.execute {
       notesDao.updateArchived(archived, noteId)
     }
   }
 
 
-  fun changeNotesarchive(notes: List<Note>, archived: Boolean) {
+  fun changeNotesarchive(noteIds: List<String>, archived: Boolean) {
     executors.diskIO.execute {
-      notesDao.updateArchiveds(archived, notes.map { it.id!! })
+      notesDao.updateArchiveds(archived, noteIds)
     }
   }
 
 
-  fun changeNotebookIds(notebookId: Long, notes: List<Note>) {
+  fun changeNotebookIds( noteIds: List<String>,notebookId: Long) {
     executors.diskIO.execute {
-      notesDao.updateBelongNotebookIds(notebookId, notes.map { it.id!! })
+      notesDao.updateBelongNotebookIds(notebookId, noteIds)
     }
   }
 
-  fun getNotes(listener: Repository.LoadListener) {
+  fun getNotes(listener: Repository.LoadListener<List<Note>>) {
     executors.diskIO.execute {
       try {
         val notes = notesDao.getNotes()
@@ -117,8 +134,8 @@ class NotesRepository private constructor(
     }
   }
 
-  fun getNoteById(noteid: Long) = notesDao.getNoteById(noteid)
-  fun getNoteById(noteid: Long, listener: Repository.LoadListener) {
+  fun getNoteById(noteid: String) = notesDao.getNoteById(noteid)
+  fun getNoteById(noteid: String, listener: Repository.LoadListener<Note>) {
     executors.diskIO.execute {
       try {
         val note = notesDao.getNoLiveNoteById(noteid)

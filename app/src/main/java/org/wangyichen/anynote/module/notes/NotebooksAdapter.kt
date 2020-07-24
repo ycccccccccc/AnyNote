@@ -14,7 +14,6 @@ import org.wangyichen.anynote.source.Entity.Notebook
 import org.wangyichen.anynote.utils.constant.NotebookIdExt
 
 class NotebooksAdapter(
-  val notebooks: List<Notebook>,
   val viewModel: NotesViewModel,
   val drawerLayout: DrawerLayout
 ) :
@@ -26,11 +25,18 @@ class NotebooksAdapter(
   private val SKETCH = 3
   private val NEW = 4
 
+  private val notebooks= ArrayList<Notebook>()
 
   class NotebooksViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     val iv_icon: ImageView = view.findViewById(R.id.notebook_icon)
     val tv_name: TextView = view.findViewById(R.id.notebook_name)
     val tv_count: TextView = view.findViewById(R.id.notebook_count)
+  }
+
+  fun setNotebooks(notebooks: List<Notebook>) {
+    this.notebooks.clear()
+    this.notebooks.addAll(notebooks)
+    notifyDataSetChanged()
   }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotebooksViewHolder {
@@ -117,7 +123,7 @@ class NotebooksAdapter(
       else -> {
         val notebook = notebooks[position - 4]
         holder.iv_icon.setImageResource(R.drawable.cycle_focus)
-        holder.iv_icon.drawable.setColorFilter(notebook.color, PorterDuff.Mode.MULTIPLY)
+        holder.iv_icon.setColorFilter(notebook.color, PorterDuff.Mode.MULTIPLY)
         holder.tv_name.text = notebook.name
         holder.tv_count.visibility = View.GONE
         holder.view.setOnClickListener { onClick(CUSTOM, notebook) }

@@ -37,7 +37,7 @@ class NotebooksRepository private constructor(
 
   fun getNotebookById(id: Long) = notebooksDao.getNotebookById(id)
 
-  fun getNoLiveNotebookById(notebookid: Long, listener: Repository.LoadListener) {
+  fun getNoLiveNotebookById(notebookid: Long, listener: Repository.LoadListener<Notebook>) {
     executors.diskIO.execute {
       try {
         val notebook = notebooksDao.getNoLiveNotebookById(notebookid)

@@ -43,7 +43,7 @@
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:onClick="@{()->viewmodel.alarmClicked()}"
-        android:visibility="@{viewmodel.alarmShow==2?View.VISIBLE:View.GONE}"
+        android:visibility="@{viewmodel.alarmShow==2?View.VISIBLE:View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -55,7 +55,7 @@
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:onClick="@{()->viewmodel.alarmClicked()}"
-        android:visibility="@{viewmodel.alarmShow==1?View.VISIBLE:View.GONE}"
+        android:visibility="@{viewmodel.alarmShow==1?View.VISIBLE:View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -67,7 +67,7 @@
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:onClick="@{()->viewmodel.alarmClicked()}"
-        android:visibility="@{viewmodel.alarmShow==0?View.VISIBLE:View.GONE}"
+        android:visibility="@{viewmodel.alarmShow==0?View.VISIBLE:View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -80,10 +80,44 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/note_blue"
+        android:uri="@{viewmodel.imageUri}"
+        android:onClick="@{()->viewmodel.onImageClicked()}"
+        android:visibility="@{viewmodel.hasImage ? View.VISIBLE : View.INVISIBLE}"
         app:layout_constraintBottom_toTopOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="invisible"/>
+
+
+      <RelativeLayout
+        android:id="@+id/no_image_layout"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="@{()->viewmodel.addImage()}"
+        android:visibility="@{viewmodel.hasImage ? View.INVISIBLE : View.VISIBLE}"
+        app:layout_constraintBottom_toTopOf="@+id/tv_alarm_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+          android:id="@+id/iv_no_image"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="10dp"
+          android:src="@drawable/add"
+          android:layout_centerHorizontal="true"/>
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerHorizontal="true"
+          android:text="点击添加封面"
+          android:textSize="12dp"
+          android:layout_below="@id/iv_no_image"/>
+      </RelativeLayout>
 
       <TextView
         android:id="@+id/tv_alarm_time"
@@ -103,7 +137,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
-        android:visibility="@{viewmodel.creationTextVisibility ? View.VISIBLE : View.GONE}"
+        android:visibility="@{viewmodel.creationTextVisibility ? View.VISIBLE : View.INVISIBLE}"
         android:text="@{viewmodel.creationText}"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"

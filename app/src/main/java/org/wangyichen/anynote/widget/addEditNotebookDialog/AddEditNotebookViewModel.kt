@@ -71,9 +71,8 @@ class AddEditNotebookViewModel : ViewModel() {
 
 
   fun load() {
-    val listener = object : Repository.LoadListener {
-      override fun onSuccess(item: Any) {
-        val notebook = item as Notebook
+    val listener = object : Repository.LoadListener<Notebook> {
+      override fun onSuccess(notebook: Notebook) {
         _color.postValue(notebook.color)
         name.postValue(notebook.name)
         description.postValue(notebook.description)
@@ -100,7 +99,7 @@ class AddEditNotebookViewModel : ViewModel() {
   fun onNegativeClick() {
     if (!newNotebook) {
       val listener = object : ConfermDialogFragment.ConfermListener {
-        override fun onPostive() {
+        override fun onPositive() {
           repository.NOTEBOOKS.deleteNotebook(notebookId)
           _closeEvent.postValue(Event(Any()))
         }

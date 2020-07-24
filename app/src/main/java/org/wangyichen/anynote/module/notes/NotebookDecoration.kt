@@ -9,34 +9,37 @@ import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
 
 
 class NotebookDecoration : RecyclerView.ItemDecoration() {
-  val divider = context.resources.getDrawable(R.drawable.divider_notebook)
-  val divider_normal = context.resources.getDrawable(R.drawable.divider_notebook_normal)
-  val position = 3 // 特殊间隔
-
+  private val divider = context.resources.getDrawable(R.drawable.divider_notebook)
+  private val dividerNormal = context.resources.getDrawable(R.drawable.divider_notebook_normal)
+  private val position = 3 // 特殊间隔
 
   override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
     super.onDraw(c, parent, state)
 
-    var left = 0
-    var right = parent.width
+    val left = 0
+    val right = parent.width
+    val count = parent.childCount
 
-    for (i in 0 until parent.childCount) {
+    for (i in 0 until count) {
+      c.save()
       val child = parent.getChildAt(i)
 
       val mBounds = Rect()
       parent.getDecoratedBoundsWithMargins(child, mBounds)
 
-      if (i == position) {
-        var bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
-        var top: Int = bottom - divider.getIntrinsicHeight()
+//      第position 个需要绘制不同的边界
+      if (parent.getChildAdapterPosition(child) == position) {
+        val bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
+        val top: Int = bottom - divider.getIntrinsicHeight()
         divider.setBounds(left, top, right, bottom)
         divider.draw(c)
       } else {
-        var bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
-        var top: Int = bottom - divider_normal.getIntrinsicHeight()
-        divider_normal.setBounds(left, top, right, bottom)
-        divider_normal.draw(c)
+        val bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
+        val top: Int = bottom - dividerNormal.getIntrinsicHeight()
+        dividerNormal.setBounds(left, top, right, bottom)
+        dividerNormal.draw(c)
       }
+      c.restore()
     }
   }
 
@@ -49,7 +52,7 @@ class NotebookDecoration : RecyclerView.ItemDecoration() {
     if (parent.getChildLayoutPosition(view) == position) {
       outRect.set(0, 0, 0, divider.getIntrinsicHeight())
     } else {
-      outRect.set(0, 0, 0, divider_normal.getIntrinsicHeight())
+      outRect.set(0, 0, 0, dividerNormal.getIntrinsicHeight())
     }
   }
 }

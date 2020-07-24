@@ -2,6 +2,10 @@
 <manifest package="org.wangyichen.anynote"
   xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <!--  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
+  <!--    android:maxSdkVersion="28" />-->
+  <!--  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+
   <application
     android:name=".module.AnyNoteApplication"
     android:allowBackup="true"
@@ -10,16 +14,22 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <activity android:name=".module.noteDetail.NoteDetailActivity" />
+    <activity android:name=".module.noteDetail.NoteDetailActivity"
+      android:parentActivityName=".module.notes.NotesActivity"/>
+    <activity android:name=".widget.ShowCoverImageActivity" />
+    <activity android:name=".module.addEditNote.AddEditNoteActivity" />
     <activity
-      android:name=".module.addEditNote.AddEditNoteActivity" />
-    <activity android:name=".module.notes.NotesActivity">
+      android:name=".module.notes.NotesActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+
+    <receiver
+      android:name=".widget.AlarmReceiver"
+      android:process=":remote" />
   </application>
 
 </manifest>

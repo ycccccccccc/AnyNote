@@ -5,11 +5,12 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 
 class ConfermDialogFragment(val title: String, val message: String, val listener: ConfermListener) :
   DialogFragment() {
   interface ConfermListener {
-    fun onPostive()
+    fun onPositive()
     fun onNegtive()
   }
 
@@ -19,7 +20,7 @@ class ConfermDialogFragment(val title: String, val message: String, val listener
       setMessage(message)
       setPositiveButton("确定", object : DialogInterface.OnClickListener {
         override fun onClick(p0: DialogInterface?, p1: Int) {
-          listener.onPostive()
+          listener.onPositive()
         }
       })
       setNegativeButton("取消", object : DialogInterface.OnClickListener {
@@ -29,5 +30,17 @@ class ConfermDialogFragment(val title: String, val message: String, val listener
       })
     }
     return builder.create();
+  }
+
+  companion object {
+    fun show(
+      title: String,
+      message: String,
+      listener: ConfermListener,
+      manager: FragmentManager,
+      tag: String
+    ) {
+      ConfermDialogFragment(title, message, listener).show(manager,tag)
+    }
   }
 }

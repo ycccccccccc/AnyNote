@@ -27,16 +27,12 @@ class AddEditNoteFragment : BaseFragment() {
     return binding.root
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    observeLiveData()
-  }
 
   override fun onResume() {
     super.onResume()
     binding.viewmodel?.start(
       this,
-      arguments?.getLong(ARGUMENT_NOTE_ID)!!,
+      arguments?.getString(ARGUMENT_NOTE_ID)!!,
       arguments?.getLong(ARGUMENT_NOTEBOOK_ID)
     )
   }
@@ -77,17 +73,10 @@ class AddEditNoteFragment : BaseFragment() {
         binding.viewmodel?.cancelEdit()
         true
       }
-      R.id.share_note -> {
-        true
-      }
-      R.id.save_image -> {
-        true
-      }
       else -> super.onOptionsItemSelected(item)
-
     }
 
-  private fun observeLiveData() {
+  override fun observeLiveData() {
     binding.viewmodel?.run {
       showSnackBarEvent.observe(viewLifecycleOwner, Observer {
         view?.showSnackbar(it, Snackbar.LENGTH_SHORT)
@@ -104,9 +93,9 @@ class AddEditNoteFragment : BaseFragment() {
     const val ARGUMENT_NOTE_ID = "NOTE_ID"
     const val ARGUMENT_NOTEBOOK_ID = "ARGUMENT_NOTEBOOK_ID"
 
-    fun newInstance(noteId: Long, notebookId: Long) = AddEditNoteFragment().apply {
+    fun newInstance(noteId: String, notebookId: Long) = AddEditNoteFragment().apply {
       arguments = Bundle().apply {
-        putLong(ARGUMENT_NOTE_ID, noteId)
+        putString(ARGUMENT_NOTE_ID, noteId)
         putLong(ARGUMENT_NOTEBOOK_ID, notebookId)
       }
     }

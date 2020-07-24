@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tool="http://schemas.android.com/tools">
+  xmlns:tool="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
   <data>
     <import type="android.view.View" />
+    <import type="org.wangyichen.anynote.utils.constant.NotebookIdExt" alias="NotebookType" />
     <variable
       name="viewmodel"
       type="org.wangyichen.anynote.module.notes.NotesViewModel" />
   </data>
 
-  <RelativeLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,10 +19,14 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
-      android:onClick="@{()->viewmodel.addNewNote()}"
       android:clickable="@{viewmodel.emptyClickable}"
+      android:onClick="@{()->viewmodel.addNewNote()}"
       android:orientation="vertical"
       android:visibility="@{viewmodel.isEmpty ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="@+id/notes_list"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
       tool:visibility="visible">
 
       <ImageView
@@ -36,21 +42,36 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:text="@{viewmodel.emptyText}"
-        tool:text="没有笔记，点击新建笔记"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        tool:text="没有笔记，点击新建笔记" />
 
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/notes_list"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:visibility="@{viewmodel.isEmpty ? View.GONE : View.VISIBLE}"
+      android:layout_height="0dp"
       android:scrollbarSize="5dp"
-      android:scrollbars="vertical"
       android:scrollbarThumbVertical="@color/colorPrimary"
-      tool:listitem="@layout/item_note"
-      tool:itemCount="3"/>
-  </RelativeLayout>
+      android:scrollbars="vertical"
+      android:visibility="@{viewmodel.isEmpty ? View.GONE : View.VISIBLE}"
+      app:layout_constraintBottom_toTopOf="@id/include"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tool:itemCount="3"
+      tool:listitem="@layout/item_note" />
+
+    <include
+      android:id="@+id/include"
+      layout="@layout/menu_action_mode_notes"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:viewmodel="@{viewmodel}" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

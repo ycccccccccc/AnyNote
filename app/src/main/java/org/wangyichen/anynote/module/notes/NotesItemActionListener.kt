@@ -4,5 +4,5 @@ import org.wangyichen.anynote.source.Entity.Note
 
 interface NotesItemActionListener {
   fun onNoteClicked(note:Note)
-  fun onToppingClicked(note: Note):Boolean
+  fun onToppingClicked(note: Note)
 }

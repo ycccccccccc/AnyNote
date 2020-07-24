@@ -13,16 +13,6 @@
     android:title="归档"
     app:showAsAction="ifRoom"/>
   <item
-    android:id="@+id/share_note"
-    android:icon="@drawable/share_white"
-    android:title="分享笔记"
-    app:showAsAction="ifRoom" />
-  <item
-    android:id="@+id/save_image"
-    android:icon="@drawable/save_white"
-    android:title="生成图片保存"
-    app:showAsAction="never" />
-  <item
     android:id="@+id/delete_note"
     android:icon="@drawable/delete_white"
     android:title="删除笔记"

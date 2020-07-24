@@ -1,30 +1,27 @@
 package org.wangyichen.anynote.module.noteDetail
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import androidx.core.app.NavUtils
 import androidx.lifecycle.Observer
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.base.BaseActivity
 import org.wangyichen.anynote.module.addEditNote.AddEditNoteActivity
+import org.wangyichen.anynote.module.notes.NotesActivity
 import org.wangyichen.anynote.utils.IntentUtils
 import org.wangyichen.anynote.utils.ext.setupActionBar
+import org.wangyichen.anynote.widget.ShowCoverImageActivity
 
 class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
   lateinit var viewModel: NoteDetailViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    viewModel = obtainViewModel()
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_note_detail)
-
-    viewModel = obtainViewModel().apply {
-      deleteNoteEvent.observe(this@NoteDetailActivity, Observer {
-        ondeletedNote()
-      })
-      addEditNoteEvent.observe(this@NoteDetailActivity, Observer {
-        editNote(it)
-      })
-    }
 
     setupActionBar(R.id.toolbar) {
       setDisplayHomeAsUpEnabled(true)
@@ -34,7 +31,7 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
 
   private fun setupViewFragment() {
     supportFragmentManager.beginTransaction().apply {
-      replace(R.id.contentFrame, NoteDetailFragment.newInstance(0))
+      replace(R.id.contentFrame, NoteDetailFragment.newInstance(""))
       commit()
     }
   }
@@ -49,19 +46,62 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
       else -> super.onOptionsItemSelected(item)
     }
 
+  override fun onBackPress() =
+    if (isTaskRoot) {
+      val intent = Intent(this, NotesActivity::class.java)
+      IntentUtils.startActivityOnBack(this, intent)
+      true
+    } else {
+      false
+    }
+
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
     viewModel.handleResult(requestCode, resultCode)
   }
 
-  fun obtainViewModel() =
-    NoteDetailViewModel.getInstance(this, intent.getLongExtra(EXTRA_NOTE_ID, 0))
-
-  companion object {
-    val EXTRA_NOTE_ID = "NOTE_ID"
+  override fun observeLiveData() {
+    viewModel.run {
+      deleteNoteEvent.observe(this@NoteDetailActivity, Observer {
+        ondeletedNote()
+      })
+      addEditNoteEvent.observe(this@NoteDetailActivity, Observer {
+        editNote(it)
+      })
+      shareNoteEvent.observe(this@NoteDetailActivity, Observer {
+        val content = it.getContent()
+        if (content != null) {
+          shareNote(content)
+        }
+      })
+      showCoverEvent.observe(this@NoteDetailActivity, Observer {
+        val content = it.getContent()
+        if (content != null) {
+          showCover(content)
+        }
+      })
+    }
   }
 
-  override fun editNote(noteId: Long) {
+  fun obtainViewModel() =
+    NoteDetailViewModel.getInstance(this, intent.getStringExtra(EXTRA_NOTE_ID) ?: "")
+
+  private fun shareNote(uri: Uri) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+      putExtra(Intent.EXTRA_STREAM, uri)
+      type = "image/png"
+    }
+    startActivity(intent)
+  }
+
+  private fun showCover(uri: Uri) {
+    val intent = Intent(this, ShowCoverImageActivity::class.java).apply {
+      putExtra(ShowCoverImageActivity.EXTRA_URI, uri)
+    }
+    IntentUtils.startActivity(this, intent)
+  }
+
+  override fun editNote(noteId: String) {
     val intent = Intent(this, AddEditNoteActivity::class.java).apply {
       putExtra(AddEditNoteActivity.EXTRA_NOTE_ID, noteId)
     }
@@ -76,4 +116,9 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
     setResult(IntentUtils.DELETE_RESULT_OK)
     finish()
   }
+
+  companion object {
+    val EXTRA_NOTE_ID = "NOTE_ID"
+  }
+
 }

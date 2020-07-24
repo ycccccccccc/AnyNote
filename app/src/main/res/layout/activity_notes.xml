@@ -35,6 +35,19 @@
           android:theme="@style/Toolbar">
 
           <TextView
+            android:id="@+id/count_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:minWidth="80dp"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:visibility="@{viewmodel.actionMode ? View.VISIBLE:View.GONE}"
+            android:text="@{viewmodel.selectedCount}"
+            android:textSize="@dimen/titleTextSize"
+            />
+
+          <TextView
             android:id="@+id/titleActionBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,6 +57,7 @@
             android:minWidth="80dp"
             android:gravity="center"
             android:ellipsize="end"
+            android:visibility="@{viewmodel.actionMode ? View.GONE:View.VISIBLE}"
             android:text="@{viewmodel.notebookName}"
             android:textColor="@android:color/white"
             android:textSize="@dimen/titleTextSize"
