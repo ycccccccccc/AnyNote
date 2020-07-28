@@ -8,10 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.dialog_share_image.*
 import org.wangyichen.anynote.R
-import org.wangyichen.anynote.utils.ConfermDialogFragment
+import org.wangyichen.anynote.utils.ConfirmDialogFragment
 import org.wangyichen.anynote.utils.SystemUtils
 
-class ShareImageDialog(val bitmap: Bitmap, val listener: ConfermDialogFragment.ConfermListener) :
+//  分享笔记
+class ShareImageDialog(private val bitmap: Bitmap, val listener: ConfirmDialogFragment.ConfirmListener) :
   DialogFragment() {
 
   override fun onCreateView(
@@ -26,7 +27,7 @@ class ShareImageDialog(val bitmap: Bitmap, val listener: ConfermDialogFragment.C
     super.onViewCreated(view, savedInstanceState)
     iv_snapshot.setImageBitmap(bitmap)
     cancel.setOnClickListener {
-      listener.onNegtive()
+      listener.onNegative()
       dismiss()
     }
     share.setOnClickListener {
@@ -45,7 +46,7 @@ class ShareImageDialog(val bitmap: Bitmap, val listener: ConfermDialogFragment.C
   }
 
   companion object {
-    fun getInstance(bitmap: Bitmap, listener: ConfermDialogFragment.ConfermListener) =
+    fun getInstance(bitmap: Bitmap, listener: ConfirmDialogFragment.ConfirmListener) =
       ShareImageDialog(bitmap, listener)
   }
 }

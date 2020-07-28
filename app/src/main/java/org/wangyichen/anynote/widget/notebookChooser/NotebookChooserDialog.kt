@@ -6,17 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_notebook_chooser.*
 import org.wangyichen.anynote.R
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.utils.ConfermDialogFragment
+import org.wangyichen.anynote.data.Entity.Notebook
+import org.wangyichen.anynote.utils.ConfirmDialogFragment
 import org.wangyichen.anynote.utils.SystemUtils
+import org.wangyichen.anynote.utils.ext.showSnackbar
 
-
+/*
+* needConfirm : 修改笔记本时是否需要提醒
+*/
 class NotebookChooserDialog(
-  val count: Int,
+  private val count: Int,
   val notebooks: List<Notebook>,
-  val listener: ConfermListener
+  val listener: ConfirmListener,
+  private val needConfirm: Boolean
 ) :
   DialogFragment() {
   override fun onCreateView(
@@ -38,19 +43,34 @@ class NotebookChooserDialog(
 
   private fun setupButton() {
     positive.setOnClickListener {
+      if (selectedIdx == -1) {
+        view?.showSnackbar("未选择笔记本", Snackbar.LENGTH_SHORT)
+        return@setOnClickListener
+      }
       val name = notebooks[selectedIdx].name
       val id = notebooks[selectedIdx].id
-      val confermlistener = object : ConfermDialogFragment.ConfermListener {
-        override fun onPositive() {
-          listener.onPositive(id!!)
-          dismiss()
-        }
+      if (needConfirm) {
+        val confirmlistener = object : ConfirmDialogFragment.ConfirmListener {
+          override fun onPositive() {
+            listener.onPositive(id!!)
+            dismiss()
+          }
 
-        override fun onNegtive() {}
+          override fun onNegative() {}
+        }
+        val title = "移动笔记"
+        val content = "确认将 $count 条笔记移动至 $name 笔记本？"
+        ConfirmDialogFragment.show(
+          title,
+          content,
+          confirmlistener,
+          parentFragmentManager,
+          javaClass.name
+        )
+      } else {
+        listener.onPositive(id!!)
+        dismiss()
       }
-      val title = "移动笔记"
-      val content = "确认将 $count 条笔记移动至 $name 笔记本？"
-      ConfermDialogFragment.show(title,content,confermlistener,parentFragmentManager,javaClass.name)
     }
     negative.setOnClickListener {
       dismiss()
@@ -80,19 +100,21 @@ class NotebookChooserDialog(
     fun show(
       count: Int,
       notebooks: List<Notebook>,
-      listener: ConfermListener,
+      listener: ConfirmListener,
       manager: FragmentManager,
-      tag: String
+      tag: String,
+      needConfirm: Boolean = true
     ) {
       NotebookChooserDialog(
         count,
         notebooks,
-        listener
+        listener,
+        needConfirm
       ).show(manager, tag)
     }
   }
 
-  interface ConfermListener {
+  interface ConfirmListener {
     fun onPositive(notebookId: Long)
   }
 }

@@ -1,13 +1,12 @@
 package org.wangyichen.anynote.widget.notebookChooser
 
-import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
-import org.wangyichen.anynote.source.Entity.Notebook
+import org.wangyichen.anynote.data.Entity.Notebook
 
 class NotebookChooserAdapter(val notebooks: List<Notebook>,val listView: ListView) : BaseAdapter() {
 

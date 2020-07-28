@@ -1,4 +1,4 @@
-package org.wangyichen.anynote.source.local.repository
+package org.wangyichen.anynote.data.local.repository
 
 import android.content.ContentResolver
 import android.content.ContentValues
@@ -19,7 +19,7 @@ class CoverRepository {
   val IMAGES_FOLDER_NAME = "AnyNote"
   val executors = AppExecutors.getInstance()
 
-  //  保存图片到本地
+  //  保存图片到相册
   fun saveImageToDCIM(bitmap: Bitmap, name: String) {
     var fos: OutputStream? = null
     val finalName = "${name}_${TimeUtils.getTime()}"
@@ -27,7 +27,7 @@ class CoverRepository {
     executors.diskIO.execute {
       try {
         fos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-          val resolver: ContentResolver = context.getContentResolver()
+          val resolver: ContentResolver = context.contentResolver
           val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, finalName)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
@@ -51,7 +51,6 @@ class CoverRepository {
         fos!!.flush()
       } catch (e: Exception) {
         Log.d(this.javaClass.name, e.toString())
-
       } finally {
         if (fos != null)
           fos!!.close()
@@ -59,10 +58,11 @@ class CoverRepository {
     }
   }
 
+//  保存到外部缓存
   fun saveImageToCache(bitmap: Bitmap): Uri {
     val imagesDir = context.externalCacheDir
     val finalName = TimeUtils.getTime().toString()
-    val image = File(imagesDir, finalName + ".png")
+    val image = File(imagesDir, "${finalName}.png")
     AppExecutors.getInstance().diskIO.execute {
       FileOutputStream(image).use { fos ->
         try {
@@ -73,11 +73,10 @@ class CoverRepository {
         }
       }
     }
-
     return Uri.parse(image.absolutePath)
   }
 
-  //  保存图片应用空间
+  //  保存图片到应用私有空间
   fun saveImageToExternal(uri: Uri): Uri {
     val imagesDir = context.getExternalFilesDir(null)
     val finalName = TimeUtils.getTime().toString()

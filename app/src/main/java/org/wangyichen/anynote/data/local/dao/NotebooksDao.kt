@@ -1,9 +1,8 @@
-package org.wangyichen.anynote.source.local.dao
+package org.wangyichen.anynote.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.Entity.NotebookWithNotes
+import org.wangyichen.anynote.data.Entity.Notebook
 
 @Dao
 interface NotebooksDao {

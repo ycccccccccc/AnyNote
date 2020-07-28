@@ -15,7 +15,8 @@
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
     <activity android:name=".module.noteDetail.NoteDetailActivity"
-      android:parentActivityName=".module.notes.NotesActivity"/>
+      android:parentActivityName=".module.notes.NotesActivity"
+      android:exported="true"/>
     <activity android:name=".widget.ShowCoverImageActivity" />
     <activity android:name=".module.addEditNote.AddEditNoteActivity" />
     <activity

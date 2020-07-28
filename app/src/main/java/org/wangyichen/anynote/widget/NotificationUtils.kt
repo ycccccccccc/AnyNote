@@ -14,7 +14,7 @@ object NotificationUtils {
   const val CHANNEL_ID = "CHANNEL_ID"
 
   fun openNoteNotification(noteId: String) {
-    val intent = if (noteId.equals("")) {
+    val intent = if (noteId == "") {
       Intent(context, NotesActivity::class.java)
     } else {
       Intent(context, NoteDetailActivity::class.java).apply {
@@ -33,7 +33,7 @@ object NotificationUtils {
       .setAutoCancel(true)
 
     with(NotificationManagerCompat.from(context)) {
-      notify(0, builder.build())
+      notify(noteId.hashCode(), builder.build())
     }
   }
 }

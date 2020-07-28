@@ -15,7 +15,8 @@ open class BaseFragment : Fragment() {
     observeLiveData()
   }
 
-  open fun observeLiveData() {
-  }
+  open fun observeLiveData() {}
+
+  //  处理返回事件返回true
   open fun onBackPress(): Boolean = false
 }

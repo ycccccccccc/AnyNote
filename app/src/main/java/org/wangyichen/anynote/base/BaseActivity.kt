@@ -10,8 +10,8 @@ open class BaseActivity : AppCompatActivity() {
 
   override fun onBackPressed() {
     when {
-      currentFragment?.onBackPress() ?: false -> {} // 先处理fragment的返回
-      onBackPress() -> {} //再处理activity的返回
+      currentFragment?.onBackPress() ?: false -> { } // 先处理fragment的返回
+      onBackPress() -> { } //再处理activity的返回
       else -> super.onBackPressed()
     }
   }
@@ -20,8 +20,9 @@ open class BaseActivity : AppCompatActivity() {
     super.onPostCreate(savedInstanceState)
     observeLiveData()
   }
-  open fun observeLiveData() {
-  }
-//  默认直接返回
+
+  open fun observeLiveData() {}
+
+  //  默认直接返回
   open fun onBackPress(): Boolean = false
 }

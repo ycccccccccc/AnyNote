@@ -3,11 +3,14 @@ package org.wangyichen.anynote.utils
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
 import java.io.File
 
+//  启动应用时，缓存大于限制自动清空
 class ClearExternalCacheUtils {
   companion object {
+    val CLEAR_SIZE = 1024 * 1024 * 100  // 100 M
+
     fun clear() {
       val dir = context.externalCacheDir
-      if (getCacheSize(dir) >= 1024 * 1024 * 100) // 100 M
+      if (getCacheSize(dir) >= CLEAR_SIZE)
         clear(dir)
     }
 
@@ -32,10 +35,10 @@ class ClearExternalCacheUtils {
         val fileList: Array<File> = dir.listFiles()
         for (i in fileList.indices) {
           // 如果下面还有文件
-          if (fileList[i].isDirectory) {
-            size = size + getCacheSize(fileList[i])
+          size = if (fileList[i].isDirectory) {
+            size + getCacheSize(fileList[i])
           } else {
-            size = size + fileList[i].length()
+            size + fileList[i].length()
           }
         }
       } catch (e: Exception) {

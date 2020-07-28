@@ -1,23 +1,25 @@
 package org.wangyichen.anynote.module.addEditNote
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 import org.wangyichen.anynote.Event
+import org.wangyichen.anynote.data.Entity.Note
+import org.wangyichen.anynote.data.local.Repository
 import org.wangyichen.anynote.module.AnyNoteApplication
-import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.local.Repository
-import org.wangyichen.anynote.source.local.repository.CoverRepository
-import org.wangyichen.anynote.utils.ConfermDialogFragment
+import org.wangyichen.anynote.utils.ConfirmDialogFragment
 import org.wangyichen.anynote.utils.IntentUtils
 import org.wangyichen.anynote.utils.ReminderUtils
 import org.wangyichen.anynote.utils.TimeUtils
+import org.wangyichen.anynote.utils.constant.AlarmState
 import org.wangyichen.anynote.utils.ext.showSnackbar
 import org.wangyichen.anynote.widget.EditCoverDialog
 import org.wangyichen.anynote.widget.editReminderDialog.EditReminderDialog
-import java.lang.Exception
+import org.wangyichen.anynote.widget.notebookChooser.NotebookChooserDialog
 import java.util.*
 import java.util.concurrent.CyclicBarrier
 
@@ -27,13 +29,12 @@ class AddEditNoteViewModel : ViewModel() {
   lateinit var fragment: AddEditNoteFragment
 
   private var newNote = true
-  private var spinnerInited = false
-  private var inited = false
   private var _initCoverUri = Uri.EMPTY
   private var _initSketch = false
 
-  private val cyclicBarrier = CyclicBarrier(3) {
-    setNotebookPos()
+  //  需要notebooks和note加载完成再初始化notebookName
+  private val cyclicBarrier = CyclicBarrier(2) {
+    setNotebookName()
   }
 
   private var _noteId: String = ""
@@ -43,50 +44,36 @@ class AddEditNoteViewModel : ViewModel() {
   private var _trash = false
   private var _checkList = false
 
-  val title = MutableLiveData<String>().apply {
-    value = ""
-  }
-  val content = MutableLiveData<String>().apply {
-    value = ""
-  }
-  private var _color = MutableLiveData<Int>()
+  private val _notebooks = repository.NOTEBOOKS.getNotebooks()
+  val title = MutableLiveData<String>().apply { value = "" }
+  val content = MutableLiveData<String>().apply { value = "" }
 
+  private var _color = MutableLiveData<Int>()
   val color: LiveData<Int>
     get() = _color
-  val notebookPos = MutableLiveData<Int>()
 
-  private val _notebooks = repository.NOTEBOOKS.getNotebooks()
-  val notebooks: LiveData<List<String>> = Transformations.map(_notebooks) { notebooks ->
-    notebooks.map { it.name }
-  }
+  val _notebookName = MutableLiveData<String>()
+  val notebookName: LiveData<String>
+    get() = _notebookName
 
-  private val _archived = MutableLiveData<Boolean>().apply {
-    value = false
-  }
+  private val _archived = MutableLiveData<Boolean>().apply { value = false }
   val archived: LiveData<Boolean>
     get() = _archived
 
-  private val _topping = MutableLiveData<Boolean>().apply {
-    value = false
-  }
+  private val _topping = MutableLiveData<Boolean>().apply { value = false }
   val topping: LiveData<Boolean>
     get() = _topping
 
-  private val _creationTextVisibility = MutableLiveData<Boolean>().apply {
-    value = false
-  }
+  private val _creationTextVisibility = MutableLiveData<Boolean>().apply { value = false }
   val creationTextVisibility: LiveData<Boolean>
     get() = _creationTextVisibility
 
-  private val _creationText = MutableLiveData<String>()
-  val creationText: LiveData<String> = Transformations.map(_creationText) {
+  private val _creationTime = MutableLiveData<String>()
+  val creationText: LiveData<String> = Transformations.map(_creationTime) {
     "创建时间：$it"
   }
 
-
-  private val _alarm = MutableLiveData<Long>().apply {
-    value = 0L
-  }
+  private val _alarm = MutableLiveData<Long>().apply { value = 0L }
   val alarmText: LiveData<String> = Transformations.map(_alarm) {
     when {
       it == 0L -> "点击添加提醒"
@@ -95,10 +82,7 @@ class AddEditNoteViewModel : ViewModel() {
     }
   }
 
-  private val _imageUri = MutableLiveData<Uri>().apply {
-    value = Uri.EMPTY
-  }
-
+  private val _imageUri = MutableLiveData<Uri>().apply { value = Uri.EMPTY }
   val imageUri: LiveData<Uri>
     get() = _imageUri
 
@@ -106,11 +90,11 @@ class AddEditNoteViewModel : ViewModel() {
   val hasImage: LiveData<Boolean>
     get() = _hasImage
 
-  val alarmShow: LiveData<Int> = Transformations.map(_alarm) {
+  val alarmState: LiveData<Int> = Transformations.map(_alarm) {
     when {
-      it == 0L -> 0 //没有提醒
-      it < TimeUtils.getTime() -> 1 //已经提醒
-      else -> 2 //未提醒
+      it == 0L -> AlarmState.NOALARM //没有提醒
+      it < TimeUtils.getTime() -> AlarmState.FIRED //已经提醒
+      else -> AlarmState.NOTFIRED //未提醒
     }
   }
 
@@ -126,22 +110,21 @@ class AddEditNoteViewModel : ViewModel() {
   val showSnackBarEvent: LiveData<String>
     get() = _showSnackBarEvent
 
-
   private val _saveNoteEvent = MutableLiveData<Int>()
   val saveNoteEvent: LiveData<Int>
     get() = _saveNoteEvent
 
+
   fun cancelEdit() {
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         _saveNoteEvent.postValue(NOCHANGE)
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = "是否放弃编辑"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -152,7 +135,8 @@ class AddEditNoteViewModel : ViewModel() {
   }
 
   fun saveNote() {
-    if (!newNote || !_sketch) {
+    //  不是保存草稿时，进行判断
+    if (!_sketch) {
       if (title.value?.isEmpty()!!) {
         _showSnackBarEvent.value = "标题不能为空"
         return
@@ -183,14 +167,14 @@ class AddEditNoteViewModel : ViewModel() {
 
     val coverImage: String
 
-    //    处理保存的封面，uri无改变则不需要处理
+    //  处理保存的封面，uri无改变则不需要处理
     if (_imageUri.value != _initCoverUri) {
       if (_imageUri.value != Uri.EMPTY) {
-        //      当前不为空，则删除之前，保存当前
+        //  当前不为空，则删除之前，保存当前
         coverImage = repository.COVER.saveImageToExternal(_imageUri.value!!).toString()
         repository.COVER.deleteImageIfExist(_initCoverUri)
       } else {
-        //        当前为空，则删除以前
+        //  当前为空，则删除以前
         repository.COVER.deleteImageIfExist(_initCoverUri)
         coverImage = Uri.EMPTY.toString()
       }
@@ -219,7 +203,7 @@ class AddEditNoteViewModel : ViewModel() {
   }
 
   fun alarmClicked() {
-    val listener = object : EditReminderDialog.ConfermListener {
+    val listener = object : EditReminderDialog.ConfirmListener {
       override fun onPositive(reminder: Long) {
         _alarm.value = reminder
         if (reminder > TimeUtils.getTime()) {
@@ -235,29 +219,32 @@ class AddEditNoteViewModel : ViewModel() {
       }
     }
 
-    EditReminderDialog.newInstance(_creation, _alarm.value!!, listener)
+    EditReminderDialog.newInstance(_alarm.value!!, listener)
       .show(fragment.parentFragmentManager, TAG)
   }
 
+  //  返回事件
   fun backPressed() {
+    //  新建笔记且未更改，直接返回
     if (newNote && title.value == "" && content.value == "") {
       _saveNoteEvent.value = NOCHANGE
       return
     }
 
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    //  若是新笔记或者草稿，提醒保存草稿。否则提醒保存修改
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         if (newNote || _initSketch) _sketch = true
         saveNote()
       }
 
-      override fun onNegtive() {
+      override fun onNegative() {
         _saveNoteEvent.value = NOCHANGE
       }
     }
 
     val title = if (newNote || _initSketch) "是否需要保存草稿" else "是否保存修改"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -265,23 +252,11 @@ class AddEditNoteViewModel : ViewModel() {
   }
 
   fun start(fragment: AddEditNoteFragment, noteId: String, notebookId: Long?) {
-    if (inited) return
-    inited = true
 
     this.fragment = fragment
     this._noteId = noteId
 
-    notebookPos.observe(fragment.viewLifecycleOwner, Observer {
-      if (!spinnerInited) {
-        //      spinner初始化后再赋值
-        Thread { cyclicBarrier.await() }.start()
-        spinnerInited = true
-      } else {
-        _notebookId = _notebooks.value?.get(it)?.id ?: _notebookId
-        setColor()
-      }
-    })
-    notebooks.observe(fragment.viewLifecycleOwner, Observer {
+    _notebooks.observe(fragment.viewLifecycleOwner, Observer {
       Thread { cyclicBarrier.await() }.start()
     })
 
@@ -305,7 +280,7 @@ class AddEditNoteViewModel : ViewModel() {
           _topping.postValue(note.topping)
           _archived.postValue(note.archived)
           cyclicBarrier.await()
-          _creationText.postValue(note.createdDateString)
+          _creationTime.postValue(note.createdDateString)
           _creationTextVisibility.postValue(true)
           _creation = note.creation
           _trash = note.trashed
@@ -321,6 +296,7 @@ class AddEditNoteViewModel : ViewModel() {
         }
 
         override fun onError(e: Exception) {
+          Log.e(TAG,e.toString())
         }
       }
       repository.NOTES.getNoteById(noteId, listener)
@@ -329,17 +305,16 @@ class AddEditNoteViewModel : ViewModel() {
 
   fun changeArchived() {
     val archived = this.archived.value!!
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         _archived.postValue(!archived)
         fragment.view?.showSnackbar("已${if (archived) "取消归档" else "归档"}", Snackbar.LENGTH_SHORT)
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = "是否${if (archived) "取消归档" else "归档"}"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -350,7 +325,7 @@ class AddEditNoteViewModel : ViewModel() {
   }
 
   fun deleteNote() {
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         if (newNote) {
           _saveNoteEvent.postValue(NOCHANGE)
@@ -365,11 +340,10 @@ class AddEditNoteViewModel : ViewModel() {
         }
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = "是否删除笔记"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -384,12 +358,13 @@ class AddEditNoteViewModel : ViewModel() {
   }
 
   fun onImageClicked() {
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         _addImageEvent.value = Event(Any())
       }
 
-      override fun onNegtive() {
+      //  删除
+      override fun onNegative() {
         _hasImage.value = false
         _imageUri.value = Uri.EMPTY
       }
@@ -398,19 +373,35 @@ class AddEditNoteViewModel : ViewModel() {
       .show(fragment.parentFragmentManager, TAG)
   }
 
+  fun onNotebookClicked() {
+    val listener = object : NotebookChooserDialog.ConfirmListener {
+      override fun onPositive(notebookId: Long) {
+        _notebookId = notebookId
+        setNotebookName()
+      }
+    }
+    NotebookChooserDialog.show(
+      1,
+      _notebooks.value!!,
+      listener,
+      fragment.parentFragmentManager,
+      TAG,
+      false
+    )
+  }
+
   fun changeTopping() {
     val topping = this.topping.value!!
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         _topping.postValue(!topping)
         fragment.view?.showSnackbar("已${if (topping) "取消置顶" else "置顶"}", Snackbar.LENGTH_SHORT)
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = "是否${if (topping) "取消置顶" else "置顶"}"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -425,6 +416,10 @@ class AddEditNoteViewModel : ViewModel() {
       IntentUtils.OPEN_ALBUM -> {
         val uri = data?.data
         if (uri == null) {
+          //  未选择图片则不更改原有图片
+          if (_imageUri.value != Uri.EMPTY) {
+            return
+          }
           _hasImage.postValue(false)
           _imageUri.postValue(Uri.EMPTY)
         } else {
@@ -435,29 +430,18 @@ class AddEditNoteViewModel : ViewModel() {
     }
   }
 
-
-  private fun setNotebookPos() {
-    var pos = 0
-    val len = _notebooks.value?.size ?: 0
-    for (i in 0 until len) {
-      if (_notebooks.value?.get(i)?.id == _notebookId) {
-        pos = i
+  private fun setNotebookName() {
+    var name = "默认笔记本"
+    var color = Color.WHITE
+    for (notebook in _notebooks.value!!) {
+      if (notebook.id == _notebookId) {
+        name = notebook.name
+        color = notebook.color
       }
     }
-    notebookPos.postValue(pos)
+    _notebookName.postValue(name)
+    _color.postValue(color)
   }
-
-  private fun setColor() {
-    if (_notebooks.value != null) {
-      for (notebook in _notebooks.value!!) {
-        if (notebook.id == _notebookId) {
-          _color.postValue(notebook.color)
-          break
-        }
-      }
-    }
-  }
-
 
   companion object {
     const val NOCHANGE = 0

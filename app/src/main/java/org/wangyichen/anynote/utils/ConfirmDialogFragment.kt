@@ -7,27 +7,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 
-class ConfermDialogFragment(val title: String, val message: String, val listener: ConfermListener) :
+class ConfirmDialogFragment(val title: String, val message: String, val listener: ConfirmListener) :
   DialogFragment() {
-  interface ConfermListener {
+  interface ConfirmListener {
     fun onPositive()
-    fun onNegtive()
+    fun onNegative()
   }
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val builder = AlertDialog.Builder(context!!).apply {
       setTitle(title)
       setMessage(message)
-      setPositiveButton("确定", object : DialogInterface.OnClickListener {
-        override fun onClick(p0: DialogInterface?, p1: Int) {
-          listener.onPositive()
-        }
-      })
-      setNegativeButton("取消", object : DialogInterface.OnClickListener {
-        override fun onClick(p0: DialogInterface?, p1: Int) {
-          listener.onNegtive()
-        }
-      })
+      setPositiveButton("确定") { _, _ -> listener.onPositive() }
+      setNegativeButton("取消") { _, _ -> listener.onNegative() }
     }
     return builder.create();
   }
@@ -36,11 +28,11 @@ class ConfermDialogFragment(val title: String, val message: String, val listener
     fun show(
       title: String,
       message: String,
-      listener: ConfermListener,
+      listener: ConfirmListener,
       manager: FragmentManager,
       tag: String
     ) {
-      ConfermDialogFragment(title, message, listener).show(manager,tag)
+      ConfirmDialogFragment(title, message, listener).show(manager, tag)
     }
   }
 }

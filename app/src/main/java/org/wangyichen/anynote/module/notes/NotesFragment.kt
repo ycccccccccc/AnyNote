@@ -52,7 +52,7 @@ class NotesFragment : BaseFragment() {
         binding.viewmodel?.clearTrash()
         true
       }
-      // action mode item
+      // action mode
       R.id.select_all->{
         adapter.selectAll()
         true
@@ -62,13 +62,13 @@ class NotesFragment : BaseFragment() {
         true
       }
       else -> super.onOptionsItemSelected(item)
-
     }
 
   override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     this.menu = menu
     inflater.inflate(R.menu.menu_notes, menu)
 
+//    只在回收站展示清空回收站图标
     binding.viewmodel?.notebookType?.observe(viewLifecycleOwner, Observer { type ->
       when (type) {
         NotebookIdExt.ALLNOTES ->
@@ -81,9 +81,11 @@ class NotesFragment : BaseFragment() {
           menu.findItem(R.id.clear_trash).isVisible = true
       }
     })
+
 //    actionmode开启时，隐藏菜单选项
-    binding.viewmodel?.actionMode?.observe(viewLifecycleOwner, Observer {
-      if (it) {
+//    clear_trash图标通过触发notebookType判断显示
+    binding.viewmodel?.actionMode?.observe(viewLifecycleOwner, Observer {actionMode->
+      if (actionMode) {
         menu.findItem(R.id.sort).isVisible = false
         menu.findItem(R.id.clear_trash).isVisible = false
         menu.findItem(R.id.cancel).isVisible = true
@@ -94,7 +96,6 @@ class NotesFragment : BaseFragment() {
         menu.findItem(R.id.select_all).isVisible = false
       }
     })
-
   }
 
   override fun onResume() {
@@ -107,6 +108,7 @@ class NotesFragment : BaseFragment() {
     binding.viewmodel?.onstop()
   }
 
+//  当处于action mode 捕获，处理返回事件
   override fun onBackPress(): Boolean =
     if (adapter.isActionMode) {
       closeActionMode()
@@ -136,7 +138,7 @@ class NotesFragment : BaseFragment() {
         adapter.setNotebooks(it)
       })
       sortChangeEvent.observe(viewLifecycleOwner, Observer {
-        adapter.sort = it
+        adapter.setSort(it)
       })
       actionMode.observe(viewLifecycleOwner, Observer {
         if (!it) adapter.closeActionMode()

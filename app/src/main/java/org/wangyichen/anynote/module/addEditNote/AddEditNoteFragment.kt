@@ -27,9 +27,8 @@ class AddEditNoteFragment : BaseFragment() {
     return binding.root
   }
 
-
-  override fun onResume() {
-    super.onResume()
+  override fun onActivityCreated(savedInstanceState: Bundle?) {
+    super.onActivityCreated(savedInstanceState)
     binding.viewmodel?.start(
       this,
       arguments?.getString(ARGUMENT_NOTE_ID)!!,
@@ -43,13 +42,13 @@ class AddEditNoteFragment : BaseFragment() {
       archived.observe(viewLifecycleOwner, Observer {
         menu.findItem(R.id.archive_note).apply {
           setIcon(if (it) R.drawable.archived_white else R.drawable.archive_white)
-          setTitle(if (it) "取消归档" else "归档")
+          title = if (it) "取消归档" else "归档"
         }
       })
       topping.observe(viewLifecycleOwner, Observer {
         menu.findItem(R.id.topping_note).apply {
           setIcon(if (it) R.drawable.toppinged_white else R.drawable.topping_white)
-          setTitle(if (it) "取消置顶" else "置顶")
+          title = if (it) "取消置顶" else "置顶"
         }
       })
     }
@@ -73,6 +72,14 @@ class AddEditNoteFragment : BaseFragment() {
         binding.viewmodel?.cancelEdit()
         true
       }
+      R.id.undo -> {
+        content.undo()
+        true
+      }
+      R.id.redo -> {
+        content.redo()
+        true
+      }
       else -> super.onOptionsItemSelected(item)
     }
 
@@ -81,13 +88,13 @@ class AddEditNoteFragment : BaseFragment() {
       showSnackBarEvent.observe(viewLifecycleOwner, Observer {
         view?.showSnackbar(it, Snackbar.LENGTH_SHORT)
       })
+      //  笔记本颜色
       color.observe(viewLifecycleOwner, Observer {
         val bg = note_color.background as GradientDrawable
         bg.setColor(it)
       })
     }
   }
-
 
   companion object {
     const val ARGUMENT_NOTE_ID = "NOTE_ID"

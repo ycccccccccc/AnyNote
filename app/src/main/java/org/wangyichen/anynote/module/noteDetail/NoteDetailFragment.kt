@@ -9,15 +9,10 @@ import kotlinx.android.synthetic.main.frag_note_detail.*
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.base.BaseFragment
 import org.wangyichen.anynote.databinding.FragNoteDetailBinding
-import org.wangyichen.anynote.module.AnyNoteApplication
-import org.wangyichen.anynote.source.local.Repository
-import org.wangyichen.anynote.source.local.repository.CoverRepository
-import org.wangyichen.anynote.utils.ViewDrawUtils
 import org.wangyichen.anynote.utils.ext.showSnackbar
 
 class NoteDetailFragment : BaseFragment() {
   lateinit var binding: FragNoteDetailBinding
-  val repository = Repository.getInstance(AnyNoteApplication.context)
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -27,37 +22,35 @@ class NoteDetailFragment : BaseFragment() {
     binding = FragNoteDetailBinding.inflate(inflater, container, false).apply {
       viewmodel = (activity as NoteDetailActivity).obtainViewModel()
     }
+    binding.lifecycleOwner = viewLifecycleOwner
     setHasOptionsMenu(true)
     return binding.root
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.lifecycleOwner = viewLifecycleOwner
-    setupFAB()
-  }
-
-  override fun onResume() {
-    super.onResume()
+  override fun onActivityCreated(savedInstanceState: Bundle?) {
+    super.onActivityCreated(savedInstanceState)
     binding.viewmodel?.start(this)
+    setupFAB()
   }
 
   override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     inflater.inflate(R.menu.menu_detail, menu)
 
     binding.viewmodel?.run {
-      arvhived.observe(viewLifecycleOwner, Observer {
+      archived.observe(viewLifecycleOwner, Observer {
         menu.findItem(R.id.archive_note).apply {
           setIcon(if (it) R.drawable.archived_white else R.drawable.archive_white)
-          setTitle(if (it) "取消归档" else "归档")
+          title = if (it) "取消归档" else "归档"
         }
       })
       topping.observe(viewLifecycleOwner, Observer {
         menu.findItem(R.id.topping_note).apply {
           setIcon(if (it) R.drawable.toppinged_white else R.drawable.topping_white)
-          setTitle(if (it) "取消置顶" else "置顶")
+          title = if (it) "取消置顶" else "置顶"
         }
       })
+
+//      收藏夹中的笔记只能恢复和删除
       trashed.observe(viewLifecycleOwner, Observer { isTrash ->
         if (isTrash) {
           menu.findItem(R.id.topping_note).isVisible = false
@@ -98,27 +91,12 @@ class NoteDetailFragment : BaseFragment() {
         saveImage()
         true
       }
-      R.id.restore_note ->{
+      R.id.restore_note -> {
         binding.viewmodel?.restoreNote()
         true
       }
       else -> super.onOptionsItemSelected(item)
     }
-
-  private fun saveImage() {
-    ViewDrawUtils.draw(scroll_layout.getChildAt(0)) { bitmap ->
-      repository.COVER.saveImageToDCIM(bitmap, binding.viewmodel!!.title.value!!)
-      view?.showSnackbar("图片已保存到本地", Snackbar.LENGTH_SHORT)
-    }
-  }
-
-  private fun shareImage() {
-    ViewDrawUtils.draw(scroll_layout.getChildAt(0)) { bitmap ->
-      val uri = repository.COVER.saveImageToCache(bitmap)
-      binding.viewmodel?.shareImage(bitmap, uri)
-    }
-  }
-
 
   override fun observeLiveData() {
     binding.viewmodel?.run {
@@ -136,8 +114,7 @@ class NoteDetailFragment : BaseFragment() {
           iv_alarm.isClickable = false
           iv_alarmed.isClickable = false
           activity?.findViewById<View>(R.id.fab_edit_note)?.visibility = View.GONE
-        }
-        else {
+        } else {
           iv_no_alarm.isClickable = true
           iv_alarm.isClickable = true
           iv_alarmed.isClickable = true
@@ -147,20 +124,22 @@ class NoteDetailFragment : BaseFragment() {
     }
   }
 
+  private fun saveImage() {
+    binding.viewmodel?.saveImage(scroll_layout.getChildAt(0))
+  }
+
+  private fun shareImage() {
+    binding.viewmodel?.shareImage(scroll_layout.getChildAt(0))
+  }
+
   private fun setupFAB() {
     activity?.findViewById<View>(R.id.fab_edit_note)?.setOnClickListener {
       binding.viewmodel?.editNote()
     }
   }
 
-
   companion object {
-    const val ARGUMENT_NOTE_ID = "NOTE_ID"
 
-    fun newInstance(noteId: String) = NoteDetailFragment().apply {
-      arguments = Bundle().apply {
-        putString(ARGUMENT_NOTE_ID, noteId)
-      }
-    }
+    fun newInstance(noteId: String) = NoteDetailFragment()
   }
 }

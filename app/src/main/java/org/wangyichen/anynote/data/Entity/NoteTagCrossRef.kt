@@ -1,4 +1,4 @@
-package org.wangyichen.anynote.source.Entity
+package org.wangyichen.anynote.data.Entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

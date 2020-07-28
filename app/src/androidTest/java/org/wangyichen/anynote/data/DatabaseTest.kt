@@ -1,8 +1,6 @@
-package org.wangyichen.anynote.source
+package org.wangyichen.anynote.data
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LifecycleRegistry
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,9 +8,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.local.NoteDatabase
+import org.wangyichen.anynote.data.Entity.Note
+import org.wangyichen.anynote.data.local.NoteDatabase
 import org.wangyichen.anynote.utils.AppExecutors
 
 @RunWith(AndroidJUnit4::class)

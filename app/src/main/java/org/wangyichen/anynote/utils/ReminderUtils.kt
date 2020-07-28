@@ -7,6 +7,7 @@ import android.content.Intent
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
 import org.wangyichen.anynote.widget.AlarmReceiver
 
+//  提醒工具类
 object ReminderUtils {
   private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

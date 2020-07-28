@@ -27,9 +27,9 @@ class AppExecutors private constructor(
   }
 
   private class MainThreadExecutor : Executor {
-    private val MainThreadExecutor = Handler(Looper.getMainLooper())
+    private val mainThreadExecutor = Handler(Looper.getMainLooper())
     override fun execute(p0: Runnable) {
-      MainThreadExecutor.post(p0)
+      mainThreadExecutor.post(p0)
     }
   }
 

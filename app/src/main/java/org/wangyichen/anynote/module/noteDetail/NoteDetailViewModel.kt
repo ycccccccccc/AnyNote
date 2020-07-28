@@ -1,79 +1,58 @@
 package org.wangyichen.anynote.module.noteDetail
 
-import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.view.View
 import androidx.lifecycle.*
 import com.google.android.material.snackbar.Snackbar
 import org.wangyichen.anynote.Event
 import org.wangyichen.anynote.module.AnyNoteApplication
-import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.local.Repository
+import org.wangyichen.anynote.data.Entity.Note
+import org.wangyichen.anynote.data.local.Repository
 import org.wangyichen.anynote.utils.*
+import org.wangyichen.anynote.utils.constant.AlarmState
 import org.wangyichen.anynote.utils.ext.showSnackbar
-import org.wangyichen.anynote.widget.AlarmReceiver
-import org.wangyichen.anynote.widget.NotificationUtils
 import org.wangyichen.anynote.widget.ShareImageDialog
 import org.wangyichen.anynote.widget.editReminderDialog.EditReminderDialog
-import java.util.concurrent.CyclicBarrier
 
 class NoteDetailViewModel(val noteId: String) : ViewModel() {
   private val TAG = javaClass.name
   private val repository = Repository.getInstance(AnyNoteApplication.context)
   lateinit var fragment: NoteDetailFragment
 
-  private val cyclicBarrier = CyclicBarrier(2) {
-    onLoaded()
-  }
-
-  val _color = MutableLiveData<Int>()
-  val color: LiveData<Int>
-    get() = _color
-
   private val _notebooks = repository.NOTEBOOKS.getNotebooks()
-
-  val _notebookName = MutableLiveData<String>()
-  val notebookName: LiveData<String>
-    get() = _notebookName
-
   private var __note = repository.NOTES.getNoteById(noteId)
-  //  避免删除数据库中的数据导致为null
-  private var _note:LiveData<Note> = Transformations.map(__note){it?:Note()}
 
-  val title: LiveData<String> = Transformations.map(_note) {
-    it.title
-  }
+  //  避免删除数据库中的数据导致为null
+  private var _note: LiveData<Note> = Transformations.map(__note) { it ?: Note() }
+
+  val title: LiveData<String> = Transformations.map(_note) { it.title }
   val content: LiveData<String> = Transformations.map(_note) { it.content }
-  val arvhived: LiveData<Boolean> = Transformations.map(_note) { it.archived }
+  val archived: LiveData<Boolean> = Transformations.map(_note) { it.archived }
   val topping: LiveData<Boolean> = Transformations.map(_note) { it.topping }
   val trashed: LiveData<Boolean> = Transformations.map(_note) { it.trashed }
   val creationText: LiveData<String> =
     Transformations.map(_note) { "创建于 ${it.createdDateString}" }
   val alarmText: LiveData<String> = Transformations.map(_note) { note ->
-    if (note.alarm == 0L) {
-      "点击添加提醒"
-    } else if (note.reminderFired) {
-      "已提醒于 ${note.alarmString}"
-    } else {
-      "将提醒于 ${note.alarmString}"
-    }
-  }
-  val imageVisibility: LiveData<Int> = Transformations.map(_note) {
-    if (it.coverImage.isEmpty()) {
-      View.GONE
-    } else {
-      View.VISIBLE
+    when {
+      note.alarm == 0L -> {
+        "点击添加提醒"
+      }
+      note.reminderFired -> {
+        "已提醒于 ${note.alarmString}"
+      }
+      else -> {
+        "将提醒于 ${note.alarmString}"
+      }
     }
   }
   val imageUri: LiveData<Uri> = Transformations.map(_note) { Uri.parse(it.coverImage) }
   val hasImage: LiveData<Boolean> = Transformations.map(_note) { it.coverImage.isNotEmpty() }
   val alarmShow: LiveData<Int> = Transformations.map(_note) { note ->
-    if (note.alarm == 0L) {
-      0 //没有提醒
-    } else if (note.reminderFired) {
-      1 //已经提醒
-    } else {
-      2 //未提醒
+    when {
+      note.alarm == 0L -> AlarmState.NOALARM  //没有提醒
+      note.reminderFired -> AlarmState.FIRED  //已经提醒
+      else -> AlarmState.NOTFIRED  //未提醒
     }
   }
 
@@ -97,29 +76,54 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
   val showSnackBarEvent: LiveData<String>
     get() = _showSnackBarEvent
 
+  //  笔记与记事本变更后更新笔记本名称与颜色
+  private val _changeEvent = MutableLiveData<Any>()
+  val color: LiveData<Int> = Transformations.map(_changeEvent) {
+    val notebookId = _note.value?.notebookId ?: -1L
+    val notebooks = _notebooks.value ?: emptyList()
+    var color = Color.WHITE
+    for (notebook in notebooks) {
+      if (notebook.id == notebookId) {
+        color = notebook.color
+      }
+    }
+    color
+  }
+  val notebookName: LiveData<String> = Transformations.map(_changeEvent) {
+    val notebookId = _note.value?.notebookId ?: -1L
+    val notebooks = _notebooks.value ?: emptyList()
+    var name = ""
+    for (notebook in notebooks) {
+      if (notebook.id == notebookId) {
+        name = notebook.name
+      }
+    }
+    name
+  }
+
+
   fun start(fragment: NoteDetailFragment) {
     this.fragment = fragment
     _notebooks.observe(fragment.viewLifecycleOwner, Observer {
-      Thread { cyclicBarrier.await() }.start()
+      _changeEvent.value = Any()
     })
     _note.observe(fragment.viewLifecycleOwner, Observer {
-      Thread { cyclicBarrier.await() }.start()
+      _changeEvent.value = Any()
     })
   }
 
   fun changeArchived() {
-    val archived = this.arvhived.value!!
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val archived = this.archived.value!!
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         repository.NOTES.changeNoteArchiveById(noteId, !archived)
         fragment.view?.showSnackbar("已${if (archived) "取消归档" else "归档"}", Snackbar.LENGTH_SHORT)
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = "是否${if (archived) "取消归档" else "归档"}"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -130,20 +134,19 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
   }
 
   fun restoreNote() {
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         repository.NOTES.untrashNoteById(noteId)
         _showSnackBarEvent.value = "已移出回收站"
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
-    ConfermDialogFragment("移出回收站","",listener).show(fragment.parentFragmentManager,TAG)
+    ConfirmDialogFragment("移出回收站", "", listener).show(fragment.parentFragmentManager, TAG)
   }
 
   fun alarmClicked() {
-    val listener = object : EditReminderDialog.ConfermListener {
+    val listener = object : EditReminderDialog.ConfirmListener {
       override fun onPositive(reminder: Long) {
         ReminderUtils.updateRimender(reminder, _note.value?.creation!!, noteId)
         repository.NOTES.updatealarmById(reminder, noteId)
@@ -153,6 +156,7 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
       }
 
       override fun onNegtive() {
+        //  有提醒时进行删除
         if (_note.value?.alarm != 0L) {
           repository.NOTES.updatealarmById(0L, noteId)
           ReminderUtils.removeRimender(_note.value?.creation!!)
@@ -160,23 +164,22 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
         }
       }
     }
-    EditReminderDialog.newInstance(_note.value?.creation!!, _note.value?.alarm!!, listener)
+    EditReminderDialog.newInstance(_note.value?.alarm!!, listener)
       .show(fragment.parentFragmentManager, TAG)
   }
 
   fun changeTopping() {
     val topping = this.topping.value!!
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
         repository.NOTES.changeNoteToppingById(noteId, !topping)
         fragment.view?.showSnackbar("已${if (topping) "取消置顶" else "置顶"}", Snackbar.LENGTH_SHORT)
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = "是否${if (topping) "取消置顶" else "置顶"}"
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       "",
       listener
@@ -186,10 +189,11 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
     )
   }
 
+  //  删除笔记，若已在回收站则彻底删除
   fun deleteNote() {
-    val listener = object : ConfermDialogFragment.ConfermListener {
+    val listener = object : ConfirmDialogFragment.ConfirmListener {
       override fun onPositive() {
-        if (!(trashed.value?:false)) {
+        if (trashed.value != true) {
           repository.NOTES.trashNoteById(noteId)
         } else {
           repository.COVER.deleteImageIfExist(imageUri.value ?: Uri.EMPTY)
@@ -198,13 +202,12 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
         _deleteNoteEvent.postValue(Any())
       }
 
-      override fun onNegtive() {
-      }
+      override fun onNegative() {}
     }
     val title = if (!trashed.value!!) "删除笔记" else "彻底删除"
     val content = if (!trashed.value!!) "是否加入回收站" else "是否彻底删除笔记！"
 
-    ConfermDialogFragment(
+    ConfirmDialogFragment(
       title,
       content,
       listener
@@ -231,26 +234,26 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
     _showCoverEvent.value = Event(imageUri.value ?: Uri.EMPTY)
   }
 
-  fun shareImage(bitmap: Bitmap, uri: Uri) {
-    val listener = object : ConfermDialogFragment.ConfermListener {
-      override fun onPositive() {
-        _shareNoteEvent.postValue(Event(uri))
-      }
+  fun shareImage(view: View) {
+    ViewDrawUtils.draw(view) { bitmap ->
+      val uri = repository.COVER.saveImageToCache(bitmap)
+      val listener = object : ConfirmDialogFragment.ConfirmListener {
+        override fun onPositive() {
+          _shareNoteEvent.postValue(Event(uri))
+        }
 
-      override fun onNegtive() {
+        override fun onNegative() {}
       }
+      ShareImageDialog.getInstance(bitmap, listener).show(fragment.parentFragmentManager, TAG)
     }
-    ShareImageDialog.getInstance(bitmap, listener).show(fragment.parentFragmentManager, TAG)
+
   }
 
-  private fun onLoaded() {
-    for (notebook in _notebooks.value!!) {
-      if (notebook.id == _note.value!!.notebookId) {
-        _notebookName.postValue(notebook.name)
-        _color.postValue(notebook.color)
-      }
+  fun saveImage(view: View) {
+    ViewDrawUtils.draw(view) { bitmap ->
+      repository.COVER.saveImageToDCIM(bitmap, title.value!!)
+      _showSnackBarEvent.postValue("图片已保存到本地")
     }
-
   }
 
   companion object {
@@ -259,7 +262,6 @@ class NoteDetailViewModel(val noteId: String) : ViewModel() {
         viewModelStoreOwner,
         NoteDetailViewModelFactory(noteId)
       )[NoteDetailViewModel::class.java]
-
   }
 
   class NoteDetailViewModelFactory(val noteid: String) : ViewModelProvider.Factory {

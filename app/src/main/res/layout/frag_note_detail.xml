@@ -3,7 +3,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
   <data>
-
+    <import type="org.wangyichen.anynote.utils.constant.AlarmState" alias="AlarmState" />
     <import type="android.view.View" />
     <variable
       name="viewmodel"
@@ -56,7 +56,7 @@
           android:layout_height="35dp"
           android:layout_marginEnd="8dp"
           android:onClick="@{()->viewmodel.alarmClicked()}"
-          android:visibility="@{viewmodel.alarmShow==2?View.VISIBLE:View.GONE}"
+          android:visibility="@{viewmodel.alarmShow==AlarmState.NOTFIRED?View.VISIBLE:View.GONE}"
           app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -68,7 +68,7 @@
           android:layout_height="35dp"
           android:layout_marginEnd="8dp"
           android:onClick="@{()->viewmodel.alarmClicked()}"
-          android:visibility="@{viewmodel.alarmShow==1?View.VISIBLE:View.GONE}"
+          android:visibility="@{viewmodel.alarmShow==AlarmState.FIRED?View.VISIBLE:View.GONE}"
           app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -80,7 +80,7 @@
           android:layout_height="35dp"
           android:layout_marginEnd="8dp"
           android:onClick="@{()->viewmodel.alarmClicked()}"
-          android:visibility="@{viewmodel.alarmShow==0?View.VISIBLE:View.GONE}"
+          android:visibility="@{viewmodel.alarmShow==AlarmState.NOALARM?View.VISIBLE:View.GONE}"
           app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -93,6 +93,8 @@
           android:layout_marginTop="8dp"
           android:text="@{viewmodel.notebookName}"
           android:textSize="18sp"
+          android:padding="5dp"
+          android:background="@drawable/outline_rect"
           app:layout_constraintStart_toStartOf="@+id/tv_title"
           app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 

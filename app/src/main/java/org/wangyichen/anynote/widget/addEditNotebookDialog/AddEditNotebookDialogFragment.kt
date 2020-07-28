@@ -15,7 +15,7 @@ import org.wangyichen.anynote.databinding.DialogAddEditNotebookBinding
 import org.wangyichen.anynote.utils.SystemUtils
 import org.wangyichen.anynote.utils.ext.showSnackbar
 
-class AddEditNotebookDialogFragment : DialogFragment() {
+class AddEditNotebookDialogFragment(val listener: DeleteListener?) : DialogFragment() {
   lateinit var binding: DialogAddEditNotebookBinding
   lateinit var owner: ViewModelStoreOwner
 
@@ -54,6 +54,12 @@ class AddEditNotebookDialogFragment : DialogFragment() {
           view?.showSnackbar(content, Snackbar.LENGTH_SHORT)
         }
       })
+      deleteEvent.observe(viewLifecycleOwner, Observer {
+        val content = it.getContent()
+        if (content != null && listener != null) {
+          listener.onDelete()
+        }
+      })
     }
   }
 
@@ -69,12 +75,15 @@ class AddEditNotebookDialogFragment : DialogFragment() {
 
   companion object {
     const val NOTEBOOKID = "notebookid"
-    fun getInstance(notebookId: Long, owner: ViewModelStoreOwner) = AddEditNotebookDialogFragment()
+    fun getInstance(notebookId: Long, owner: ViewModelStoreOwner,listener:DeleteListener? = null) = AddEditNotebookDialogFragment(listener)
       .apply {
         this.owner = owner
         arguments = Bundle().apply {
           putLong(NOTEBOOKID, notebookId)
         }
       }
+  }
+  interface DeleteListener {
+    fun onDelete()
   }
 }

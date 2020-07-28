@@ -4,13 +4,11 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Color
 import android.os.Build
 import org.wangyichen.anynote.R
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.local.Repository
+import org.wangyichen.anynote.data.Entity.Notebook
+import org.wangyichen.anynote.data.local.Repository
 import org.wangyichen.anynote.utils.ClearExternalCacheUtils
-import org.wangyichen.anynote.utils.TimeUtils
 import org.wangyichen.anynote.widget.NotificationUtils.CHANNEL_ID
 
 const val DEFAULT_NOTEBOOK_ID = 0L
@@ -29,7 +27,7 @@ class AnyNoteApplication : Application() {
   }
 
   private fun initDatabase() {
-    val notebook = Notebook("默认笔记本", Color.TRANSPARENT, "默认笔记本", DEFAULT_NOTEBOOK_ID)
+    val notebook = Notebook("默认笔记本", resources.getColor(R.color.colorPrimary), "默认笔记本", DEFAULT_NOTEBOOK_ID)
     Repository.getInstance(context).NOTEBOOKS.saveNotebook(notebook)
   }
 

@@ -16,9 +16,4 @@ object SystemUtils {
 
   fun getWidthByPercentage(per: Float) = (getScreenWidth() * per).toInt()
   fun getHeightByPercentage(per: Float) = (getScreenHeight() * per).toInt()
-
-  fun dp2px(dp: Float): Int {
-    val scale = context.resources.displayMetrics.density
-    return (dp * scale + 0.5f).toInt()
-  }
 }

@@ -22,7 +22,7 @@ class TimeUtils {
       return date
     }
 
-    fun data2time(year: Int, month: Int, day: Int, hour: Int, minute: Int):Long {
+    fun data2time(year: Int, month: Int, day: Int, hour: Int, minute: Int): Long {
       val dataFormater = SimpleDateFormat("yyyy MM dd HH mm ss", Locale.CHINA)
       val date = dataFormater.parse("$year $month $day $hour $minute 00")
       return date.time

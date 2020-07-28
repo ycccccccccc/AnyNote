@@ -3,9 +3,7 @@ package org.wangyichen.anynote.module.noteDetail
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
-import androidx.core.app.NavUtils
 import androidx.lifecycle.Observer
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.base.BaseActivity
@@ -16,7 +14,7 @@ import org.wangyichen.anynote.utils.ext.setupActionBar
 import org.wangyichen.anynote.widget.ShowCoverImageActivity
 
 class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
-  lateinit var viewModel: NoteDetailViewModel
+  private lateinit var viewModel: NoteDetailViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     viewModel = obtainViewModel()
@@ -46,9 +44,11 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
       else -> super.onOptionsItemSelected(item)
     }
 
+//  从通知跳转进来时，返回主页
   override fun onBackPress() =
     if (isTaskRoot) {
       val intent = Intent(this, NotesActivity::class.java)
+      intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
       IntentUtils.startActivityOnBack(this, intent)
       true
     } else {
@@ -63,7 +63,7 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
   override fun observeLiveData() {
     viewModel.run {
       deleteNoteEvent.observe(this@NoteDetailActivity, Observer {
-        ondeletedNote()
+        onDeletedNote()
       })
       addEditNoteEvent.observe(this@NoteDetailActivity, Observer {
         editNote(it)
@@ -94,7 +94,7 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
     startActivity(intent)
   }
 
-  private fun showCover(uri: Uri) {
+  override fun showCover(uri: Uri) {
     val intent = Intent(this, ShowCoverImageActivity::class.java).apply {
       putExtra(ShowCoverImageActivity.EXTRA_URI, uri)
     }
@@ -112,7 +112,7 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
     )
   }
 
-  override fun ondeletedNote() {
+  override fun onDeletedNote() {
     setResult(IntentUtils.DELETE_RESULT_OK)
     finish()
   }
@@ -120,5 +120,4 @@ class NoteDetailActivity : BaseActivity(), NoteDetailNavigator {
   companion object {
     val EXTRA_NOTE_ID = "NOTE_ID"
   }
-
 }

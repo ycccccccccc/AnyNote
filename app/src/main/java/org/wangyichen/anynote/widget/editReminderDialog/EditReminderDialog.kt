@@ -9,12 +9,11 @@ import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.dialog_edit_reminder.*
 import org.wangyichen.anynote.R
-import org.wangyichen.anynote.utils.ConfermDialogFragment
 import org.wangyichen.anynote.utils.TimeUtils
 
 class EditReminderDialog : DialogFragment() {
   private var chooseTime = true
-  private lateinit var listener: ConfermListener
+  private lateinit var listener: ConfirmListener
   private var year = 0
   private var month = 0
   private var day = 0
@@ -49,11 +48,11 @@ class EditReminderDialog : DialogFragment() {
       time_picker.hour = hour
       time_picker.minute = minute
     }
-    time_picker.setOnTimeChangedListener { timePicker, hour, minute ->
+    time_picker.setOnTimeChangedListener { _, hour, minute ->
       this.hour = hour
       this.minute = minute
     }
-    data_picker.init(year, month, day) { datePicker: DatePicker, year: Int, month: Int, day: Int ->
+    data_picker.init(year, month, day) { _: DatePicker, year: Int, month: Int, day: Int ->
       this.year = year
       this.month = month
       this.day = day
@@ -82,24 +81,24 @@ class EditReminderDialog : DialogFragment() {
       listener.onNegtive()
       dismiss()
     }
+    btn_delete_reminder.text = if (arguments?.getLong(EXTRA_REMINDER) == 0L) "取消" else "删除"
   }
 
   companion object {
-    const val EXTRA_ID = "EXTRA_ID"
     const val EXTRA_REMINDER = "EXTRA_REMINDER"
 
-    fun newInstance(id: Long, reminder: Long, listener: ConfermListener) =
+    fun newInstance(reminder: Long, listener: ConfirmListener) =
       EditReminderDialog()
         .apply {
           arguments = Bundle().apply {
-            putLong(EXTRA_ID, id)
             putLong(EXTRA_REMINDER, reminder)
           }
           this.listener = listener
         }
   }
-  interface ConfermListener {
-    fun onPositive(reminder:Long)
+
+  interface ConfirmListener {
+    fun onPositive(reminder: Long)
     fun onNegtive()
   }
 }

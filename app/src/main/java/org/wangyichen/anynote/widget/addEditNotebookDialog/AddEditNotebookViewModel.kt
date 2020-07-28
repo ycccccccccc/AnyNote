@@ -1,18 +1,15 @@
 package org.wangyichen.anynote.widget.addEditNotebookDialog
 
-import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
 import org.wangyichen.anynote.Event
 import org.wangyichen.anynote.module.AnyNoteApplication
-import org.wangyichen.anynote.source.local.Repository
+import org.wangyichen.anynote.data.local.Repository
 import org.wangyichen.anynote.widget.colorChooser.ColorChooserDialog
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
-import org.wangyichen.anynote.module.DEFAULT_NOTEBOOK_ID
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.Entity.Tag
-import org.wangyichen.anynote.utils.ConfermDialogFragment
+import org.wangyichen.anynote.data.Entity.Notebook
+import org.wangyichen.anynote.utils.ConfirmDialogFragment
 import java.lang.Exception
 
 class AddEditNotebookViewModel : ViewModel() {
@@ -44,6 +41,10 @@ class AddEditNotebookViewModel : ViewModel() {
   private val _closeEvent = MutableLiveData<Event<Any>>()
   val closeEvent: LiveData<Event<Any>>
     get() = _closeEvent
+
+  private val _deleteEvent = MutableLiveData<Event<Any>>()
+  val deleteEvent: LiveData<Event<Any>>
+    get() = _deleteEvent
 
   private val _showSnackBarEvent = MutableLiveData<Event<String>>()
   val showSnackBarEvent: LiveData<Event<String>>
@@ -98,16 +99,18 @@ class AddEditNotebookViewModel : ViewModel() {
 
   fun onNegativeClick() {
     if (!newNotebook) {
-      val listener = object : ConfermDialogFragment.ConfermListener {
+      val listener = object : ConfirmDialogFragment.ConfirmListener {
         override fun onPositive() {
+          repository.NOTES.deleteNotebook(notebookId)
           repository.NOTEBOOKS.deleteNotebook(notebookId)
           _closeEvent.postValue(Event(Any()))
+          _deleteEvent.postValue(Event(Any()))
         }
 
-        override fun onNegtive() {
+        override fun onNegative() {
         }
       }
-      ConfermDialogFragment(
+      ConfirmDialogFragment(
         "删除笔记本",
         "是否删除笔记本，笔记将放入回收站，此操作不可逆！",
         listener
@@ -125,7 +128,7 @@ class AddEditNotebookViewModel : ViewModel() {
     }
     val color = this._color.value!!
     val description = this.description.value!!
-    val notebookId = if (newNotebook) null else this.notebookId!!
+    val notebookId = if (newNotebook) null else this.notebookId
 
     val notebook = Notebook(name = name, color = color, description = description, id = notebookId)
     repository.NOTEBOOKS.saveNotebook(notebook)

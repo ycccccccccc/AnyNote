@@ -4,6 +4,7 @@
   xmlns:tools="http://schemas.android.com/tools">
   <data>
 
+    <import type="org.wangyichen.anynote.utils.constant.AlarmState" alias="AlarmState" />
     <import type="android.view.View" />
     <variable
       name="viewmodel"
@@ -43,7 +44,7 @@
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:onClick="@{()->viewmodel.alarmClicked()}"
-        android:visibility="@{viewmodel.alarmShow==2?View.VISIBLE:View.INVISIBLE}"
+        android:visibility="@{viewmodel.alarmState==AlarmState.NOTFIRED?View.VISIBLE:View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -55,7 +56,7 @@
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:onClick="@{()->viewmodel.alarmClicked()}"
-        android:visibility="@{viewmodel.alarmShow==1?View.VISIBLE:View.INVISIBLE}"
+        android:visibility="@{viewmodel.alarmState==AlarmState.FIRED?View.VISIBLE:View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -67,7 +68,7 @@
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:onClick="@{()->viewmodel.alarmClicked()}"
-        android:visibility="@{viewmodel.alarmShow==0?View.VISIBLE:View.INVISIBLE}"
+        android:visibility="@{viewmodel.alarmState==AlarmState.NOALARM?View.VISIBLE:View.INVISIBLE}"
         app:layout_constraintBottom_toBottomOf="@+id/tv_alarm_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_alarm_time"
@@ -155,14 +156,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-      <androidx.appcompat.widget.AppCompatSpinner
+      <TextView
         android:id="@+id/tv_notebook"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:entries="@{viewmodel.notebooks}"
-        android:selectedItemPosition="@={viewmodel.notebookPos}"
+        android:maxWidth="150dp"
+        android:ellipsize="end"
+        android:gravity="center"
         android:textSize="18sp"
+        android:paddingStart="10dp"
+        android:drawableEnd="@drawable/sanjiao_black"
+        android:background="@drawable/outline_rect"
+        android:text="@{viewmodel.notebookName}"
+        android:onClick="@{()->viewmodel.onNotebookClicked()}"
         app:layout_constraintStart_toStartOf="@+id/tv_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -173,7 +180,7 @@
       android:background="@color/colorPrimary"
       android:layout_margin="10dp"/>
 
-    <EditText
+    <org.wangyichen.anynote.widget.editableText.EditableText
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:minHeight="480dp"

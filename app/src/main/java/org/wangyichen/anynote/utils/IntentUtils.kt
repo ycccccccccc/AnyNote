@@ -22,9 +22,13 @@ class IntentUtils {
       source.startActivityForResult(intent, requestCode)
     }
 
+    //  使用返回动画打开activity
     fun startActivityOnBack(source: Activity, intent: Intent) {
       source.startActivity(intent)
-      source.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+      source.overridePendingTransition(
+        android.R.anim.slide_in_left,
+        android.R.anim.slide_out_right
+      )
     }
   }
 

@@ -6,6 +6,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
+import kotlin.math.roundToInt
 
 
 class NotebookDecoration : RecyclerView.ItemDecoration() {
@@ -29,13 +30,13 @@ class NotebookDecoration : RecyclerView.ItemDecoration() {
 
 //      第position 个需要绘制不同的边界
       if (parent.getChildAdapterPosition(child) == position) {
-        val bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
-        val top: Int = bottom - divider.getIntrinsicHeight()
+        val bottom: Int = mBounds.bottom + child.translationY.roundToInt()
+        val top: Int = bottom - divider.intrinsicHeight
         divider.setBounds(left, top, right, bottom)
         divider.draw(c)
       } else {
-        val bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
-        val top: Int = bottom - dividerNormal.getIntrinsicHeight()
+        val bottom: Int = mBounds.bottom + child.translationY.roundToInt()
+        val top: Int = bottom - dividerNormal.intrinsicHeight
         dividerNormal.setBounds(left, top, right, bottom)
         dividerNormal.draw(c)
       }
@@ -50,9 +51,9 @@ class NotebookDecoration : RecyclerView.ItemDecoration() {
     state: RecyclerView.State
   ) {
     if (parent.getChildLayoutPosition(view) == position) {
-      outRect.set(0, 0, 0, divider.getIntrinsicHeight())
+      outRect.set(0, 0, 0, divider.intrinsicHeight)
     } else {
-      outRect.set(0, 0, 0, dividerNormal.getIntrinsicHeight())
+      outRect.set(0, 0, 0, dividerNormal.intrinsicHeight)
     }
   }
 }

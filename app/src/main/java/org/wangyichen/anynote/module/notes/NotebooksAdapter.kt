@@ -9,13 +9,13 @@ import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import org.wangyichen.anynote.R
+import org.wangyichen.anynote.data.Entity.Notebook
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
-import org.wangyichen.anynote.source.Entity.Notebook
 import org.wangyichen.anynote.utils.constant.NotebookIdExt
 
 class NotebooksAdapter(
-  val viewModel: NotesViewModel,
-  val drawerLayout: DrawerLayout
+  private val viewModel: NotesViewModel,
+  private val drawerLayout: DrawerLayout
 ) :
   RecyclerView.Adapter<NotebooksAdapter.NotebooksViewHolder>(), NotebooksItemActionListener {
   private val CUSTOM = -1
@@ -41,8 +41,7 @@ class NotebooksAdapter(
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotebooksViewHolder {
     val view = LayoutInflater.from(parent.context).inflate(R.layout.item_notebook, parent, false)
-    val vh = NotebooksViewHolder(view)
-    return vh
+    return NotebooksViewHolder(view)
   }
 
   /*
@@ -59,7 +58,7 @@ class NotebooksAdapter(
 //      所有
       0 -> {
         holder.iv_icon.setImageResource(R.drawable.notebook_all_note_white)
-        holder.iv_icon.drawable.setColorFilter(
+        holder.iv_icon.setColorFilter(
           context.resources.getColor(R.color.colorPrimary),
           PorterDuff.Mode.MULTIPLY
         )
@@ -70,7 +69,7 @@ class NotebooksAdapter(
 //      已归档
       1 -> {
         holder.iv_icon.setImageResource(R.drawable.notebook_archived_white)
-        holder.iv_icon.drawable.setColorFilter(
+        holder.iv_icon.setColorFilter(
           context.resources.getColor(R.color.colorPrimary),
           PorterDuff.Mode.MULTIPLY
         )
@@ -81,7 +80,7 @@ class NotebooksAdapter(
 //      回收站
       2 -> {
         holder.iv_icon.setImageResource(R.drawable.notebook_delete_white)
-        holder.iv_icon.drawable.setColorFilter(
+        holder.iv_icon.setColorFilter(
           context.resources.getColor(R.color.colorPrimary),
           PorterDuff.Mode.MULTIPLY
         )
@@ -92,7 +91,7 @@ class NotebooksAdapter(
 //      草稿箱
       3 -> {
         holder.iv_icon.setImageResource(R.drawable.notebook_sketch_white)
-        holder.iv_icon.drawable.setColorFilter(
+        holder.iv_icon.setColorFilter(
           context.resources.getColor(R.color.colorPrimary),
           PorterDuff.Mode.MULTIPLY
         )
@@ -103,7 +102,7 @@ class NotebooksAdapter(
 //      新建笔记本
       notebooks.size + 4 -> {
         holder.iv_icon.setImageResource(R.drawable.notebook_add_white)
-        holder.iv_icon.drawable.setColorFilter(
+        holder.iv_icon.setColorFilter(
           context.resources.getColor(R.color.colorAccent),
           PorterDuff.Mode.MULTIPLY
         )
@@ -115,6 +114,7 @@ class NotebooksAdapter(
       4 -> {
         val notebook = notebooks[0]
         holder.iv_icon.setImageResource(R.drawable.cycle_focus)
+        holder.iv_icon.setColorFilter(notebook.color, PorterDuff.Mode.MULTIPLY)
         holder.tv_name.text = notebook.name
         holder.tv_count.visibility = View.GONE
         holder.view.setOnClickListener { onClick(CUSTOM, notebook) }
@@ -135,35 +135,23 @@ class NotebooksAdapter(
   override fun onClick(case: Int, notebook: Notebook) {
     when (case) {
       CUSTOM -> {
-        viewModel.openNotebook(notebook.id!!, notebook.name)
+        viewModel.openNotebook(notebook.id!!)
         drawerLayout.closeDrawers()
       }
       ALL -> {
-        viewModel.openNotebook(
-          NotebookIdExt.ALLNOTES,
-          context.getString(R.string.notebook_name_all_note)
-        )
+        viewModel.openNotebook(NotebookIdExt.ALLNOTES)
         drawerLayout.closeDrawers()
       }
       ARCHIVED -> {
-        viewModel.openNotebook(
-          NotebookIdExt.ARCHIVED,
-          context.getString(R.string.notebook_name_archived)
-        )
+        viewModel.openNotebook(NotebookIdExt.ARCHIVED)
         drawerLayout.closeDrawers()
       }
       TRASH -> {
-        viewModel.openNotebook(
-          NotebookIdExt.TRASH,
-          context.getString(R.string.notebook_name_trashed)
-        )
+        viewModel.openNotebook(NotebookIdExt.TRASH)
         drawerLayout.closeDrawers()
       }
       SKETCH -> {
-        viewModel.openNotebook(
-          NotebookIdExt.SKETCH,
-          context.getString(R.string.notebook_name_sketch)
-        )
+        viewModel.openNotebook(NotebookIdExt.SKETCH)
         drawerLayout.closeDrawers()
       }
       NEW -> {
@@ -174,6 +162,7 @@ class NotebooksAdapter(
     }
   }
 
+//  只可以修改自定义笔记本
   override fun onLongClicked(case: Int, notebook: Notebook): Boolean =
     when (case) {
       CUSTOM -> {

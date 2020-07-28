@@ -12,29 +12,28 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.wangyichen.anynote.R
-import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.Entity.Notebook
+import org.wangyichen.anynote.data.Entity.Note
+import org.wangyichen.anynote.data.Entity.Notebook
 import org.wangyichen.anynote.utils.constant.SortType
 
 class NotesAdapter(
-  val viewmodel: NotesViewModel
+  val viewModel: NotesViewModel
 ) :
   RecyclerView.Adapter<NotesAdapter.MainNoteViewHolder>() {
 
-  internal var notes = ArrayList<NoteWraper>()
+  internal var notes = ArrayList<NoteWrapper>()
   private var notebooks = ArrayList<Notebook>()
   private var selectedNotes = HashSet<Note>()
   var isActionMode = false
   val listener: NotesItemActionListener = object : NotesItemActionListener {
     override fun onNoteClicked(note: Note) {
-      viewmodel.openNoteDetails(note)
+      viewModel.openNoteDetails(note)
     }
 
     override fun onToppingClicked(note: Note) {
-      viewmodel.unToppingNote(note)
+      viewModel.unToppingNote(note)
     }
   }
-
 
   inner class MainNoteViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     val iv_alarm: ImageView = view.findViewById(R.id.iv_alarm)
@@ -49,15 +48,11 @@ class NotesAdapter(
     val checkBox: CheckBox = view.findViewById(R.id.checkbox)
   }
 
-  var sort: Long = SortType.CREATION
-    set(value) {
-      field = value
-    }
+  private var sort: Long = SortType.CREATION
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainNoteViewHolder {
     val view = LayoutInflater.from(parent.context).inflate(R.layout.item_note, parent, false)
-    val vh = MainNoteViewHolder(view)
-    return vh
+    return MainNoteViewHolder(view)
   }
 
   override fun getItemCount() = notes.size
@@ -67,6 +62,7 @@ class NotesAdapter(
     val note = noteWraper.note
 
     holder.view.setOnClickListener {
+//    action mode 与 常规逻辑
       if (isActionMode) {
         if (noteWraper.checked) {
           noteWraper.checked = false
@@ -76,22 +72,25 @@ class NotesAdapter(
           noteWraper.checked = true
           holder.checkBox.isChecked = true
           selectedNotes.add(note)
-
         }
-        viewmodel.onSelectedNotesChanged(selectedNotes)
+        viewModel.onSelectedNotesChanged(selectedNotes)
       } else {
         listener.onNoteClicked(note)
       }
     }
+//    长按触发action mode
     holder.view.setOnLongClickListener {
       if (!isActionMode) {
         isActionMode = true
+
+//        初始化 只有当前选中
         for (note in notes) note.checked = false
         selectedNotes.clear()
         selectedNotes.add(note)
         noteWraper.checked = true
-        viewmodel.startActionMode()
-        viewmodel.onSelectedNotesChanged(selectedNotes)
+
+        viewModel.startActionMode()
+        viewModel.onSelectedNotesChanged(selectedNotes)
         notifyDataSetChanged()
         true
       } else {
@@ -99,6 +98,7 @@ class NotesAdapter(
       }
     }
 
+//    选择框根据action mode变化
     if (isActionMode) {
       holder.checkBox.visibility = View.VISIBLE
       holder.checkBox.isChecked = noteWraper.checked
@@ -106,6 +106,7 @@ class NotesAdapter(
       holder.checkBox.visibility = View.GONE
     }
 
+//    置顶标志
     holder.iv_topping.apply {
       visibility = if (!note.topping) View.GONE else View.VISIBLE
       setOnClickListener {
@@ -113,6 +114,8 @@ class NotesAdapter(
       }
       isClickable = !isActionMode
     }
+
+//    封面
     holder.iv_image.apply {
       val uri = note.coverImage
       visibility = if (uri.isNotEmpty()) {
@@ -122,13 +125,19 @@ class NotesAdapter(
         View.GONE
       }
     }
+
     holder.tv_title.text = note.title
     holder.tv_content.text = note.content
+
+//    创建时间/修改时间  根据排序方式变化
     holder.tv_time.text = when (sort) {
       SortType.CREATION -> "创建时间：${note.createdDateString}"
       SortType.LASTMODIFICATION -> "修改时间：${note.modificatedDateString}"
       else -> "创建时间：${note.createdDateString}"
     }
+
+
+//    提醒文本显示
     if (note.alarm == 0L) {
       holder.tv_alarm_time.text = "未设置提醒时间"
       holder.tv_alarm_time.visibility = View.VISIBLE
@@ -146,6 +155,7 @@ class NotesAdapter(
       holder.iv_alarmed.visibility = View.VISIBLE
     }
 
+//    笔记本对应颜色
     val bg = holder.note_color.background as GradientDrawable
     var notebook: Notebook? = null
     for (nb in notebooks) {
@@ -159,8 +169,12 @@ class NotesAdapter(
 
   fun setNotes(notes: List<Note>) {
     this.notes.clear()
-    this.notes.addAll(notes.map { NoteWraper(false, it) })
+    this.notes.addAll(notes.map { NoteWrapper(false, it) })
     notifyDataSetChanged()
+  }
+
+  fun setSort(sort: Long) {
+    this.sort = sort
   }
 
   fun setNotebooks(notebooks: List<Notebook>) {
@@ -179,9 +193,9 @@ class NotesAdapter(
       note.checked = true
       selectedNotes.add(note.note)
     }
-    viewmodel.onSelectedNotesChanged(selectedNotes)
+    viewModel.onSelectedNotesChanged(selectedNotes)
     notifyDataSetChanged()
   }
 
-  class NoteWraper(var checked: Boolean, val note: Note)
+  class NoteWrapper(var checked: Boolean, val note: Note)
 }

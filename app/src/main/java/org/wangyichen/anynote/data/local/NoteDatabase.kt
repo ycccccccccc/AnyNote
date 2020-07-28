@@ -1,13 +1,13 @@
-package org.wangyichen.anynote.source.local
+package org.wangyichen.anynote.data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import org.wangyichen.anynote.source.Entity.Note
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.local.dao.NotebooksDao
-import org.wangyichen.anynote.source.local.dao.NotesDao
+import org.wangyichen.anynote.data.Entity.Note
+import org.wangyichen.anynote.data.Entity.Notebook
+import org.wangyichen.anynote.data.local.dao.NotebooksDao
+import org.wangyichen.anynote.data.local.dao.NotesDao
 
 //@Database(entities = [Notebook::class, Attachment::class, Note::class, Tag::class], version = 1)
 @Database(

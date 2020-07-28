@@ -9,7 +9,7 @@ import com.bumptech.glide.Glide
 object GlideBinding {
   @BindingAdapter("android:uri")
   @JvmStatic fun loadImage(view: View, uri: Uri?) {
-    if (uri == null || uri.equals(Uri.EMPTY)) return
+    if (uri == null || uri == Uri.EMPTY) return
     Glide.with(view).load(uri).centerCrop().into(view as ImageView)
   }
 }

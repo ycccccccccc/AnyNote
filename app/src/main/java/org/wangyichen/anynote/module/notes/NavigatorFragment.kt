@@ -5,17 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.frag_nav_notebooks.*
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.base.BaseFragment
-import org.wangyichen.anynote.source.Entity.Notebook
+import org.wangyichen.anynote.data.Entity.Notebook
 
 class NavigatorFragment : BaseFragment() {
   val notebooks = ArrayList<Notebook>()
-  lateinit var viewModel: NotesViewModel
-  lateinit var adapter: NotebooksAdapter
+  private lateinit var viewModel: NotesViewModel
+  private lateinit var adapter: NotebooksAdapter
 
   override fun onCreateView(
     inflater: LayoutInflater,

@@ -1,8 +1,8 @@
-package org.wangyichen.anynote.source.local.dao
+package org.wangyichen.anynote.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.wangyichen.anynote.source.Entity.Note
+import org.wangyichen.anynote.data.Entity.Note
 
 @Dao
 interface NotesDao {
@@ -16,7 +16,7 @@ interface NotesDao {
   fun deleteNotesById(noteid: List<String>)
 
   @Query("delete from notes where trashed = :trashed")
-  fun deleteNotes(trashed: Boolean)
+  fun clearNotes(trashed: Boolean)
 
   @Query("delete from notes where noteid = :noteid")
   fun deleteNoteById(noteid: String)
@@ -63,10 +63,6 @@ interface NotesDao {
   @Transaction
   @Query("select * from notes where noteid = :noteid")
   fun getNoteById(noteid: String): LiveData<Note>
-
-  @Transaction
-  @Query("select * from notes where noteid = :noteid")
-  fun getNoLiveNoteById(noteid: String): Note
 
   @Transaction
   @Query("select * from notes where belongnotebookid = :notebookId")

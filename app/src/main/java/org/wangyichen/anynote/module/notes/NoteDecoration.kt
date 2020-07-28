@@ -3,13 +3,13 @@ package org.wangyichen.anynote.module.notes
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.view.View
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import org.wangyichen.anynote.R
 import org.wangyichen.anynote.module.AnyNoteApplication.Companion.context
+import kotlin.math.roundToInt
 
 class NoteDecoration : RecyclerView.ItemDecoration() {
-  val divider = context.resources.getDrawable(R.drawable.divider_notebook)
+  private val divider = context.resources.getDrawable(R.drawable.divider_notebook)
 
   override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
     val left = 0
@@ -21,8 +21,8 @@ class NoteDecoration : RecyclerView.ItemDecoration() {
       if (hasDivider(position, parent)) {
         val mBounds = Rect()
         parent.getDecoratedBoundsWithMargins(child, mBounds)
-        val bottom: Int = mBounds.bottom + Math.round(child.getTranslationY())
-        val top: Int = bottom - divider.getIntrinsicHeight()
+        val bottom: Int = mBounds.bottom + child.translationY.roundToInt()
+        val top: Int = bottom - divider.intrinsicHeight
         divider.setBounds(left, top, right, bottom)
         divider.draw(c)
       }

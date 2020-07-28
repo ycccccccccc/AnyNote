@@ -1,10 +1,10 @@
-package org.wangyichen.anynote.source.local.repository
+package org.wangyichen.anynote.data.local.repository
 
 import android.content.Context
 import org.wangyichen.anynote.module.DEFAULT_NOTEBOOK_ID
-import org.wangyichen.anynote.source.Entity.Notebook
-import org.wangyichen.anynote.source.local.NoteDatabase
-import org.wangyichen.anynote.source.local.Repository
+import org.wangyichen.anynote.data.Entity.Notebook
+import org.wangyichen.anynote.data.local.NoteDatabase
+import org.wangyichen.anynote.data.local.Repository
 import org.wangyichen.anynote.utils.AppExecutors
 import java.lang.Exception
 
@@ -13,7 +13,6 @@ class NotebooksRepository private constructor(
     val executors: AppExecutors
 ) {
   private val notebooksDao = database.notebooksDao()
-  private val notesDao = database.notesDao()
 
   fun saveNotebook(notebook: Notebook) {
     executors.diskIO.execute {
@@ -23,19 +22,9 @@ class NotebooksRepository private constructor(
 
   fun deleteNotebook(notebookId: Long) {
     executors.diskIO.execute {
-      notesDao.updateTrashByNotebookId(true,notebookId)
-      notesDao.updateNotebookId(notebookId, DEFAULT_NOTEBOOK_ID)
       notebooksDao.deleteNotebookById(notebookId)
     }
   }
-
-  fun updateNotebook(notebook: Notebook) {
-    executors.diskIO.execute {
-      notebooksDao.updateNotebook(notebook)
-    }
-  }
-
-  fun getNotebookById(id: Long) = notebooksDao.getNotebookById(id)
 
   fun getNoLiveNotebookById(notebookid: Long, listener: Repository.LoadListener<Notebook>) {
     executors.diskIO.execute {
@@ -47,7 +36,6 @@ class NotebooksRepository private constructor(
       }
     }
   }
-
 
   fun getNotebooks() = notebooksDao.getNotebooks()
 

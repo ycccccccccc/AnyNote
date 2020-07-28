@@ -3,6 +3,16 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
+    android:id="@+id/undo"
+    android:icon="@drawable/leftturn_filled_white"
+    android:title="撤销"
+    app:showAsAction="ifRoom"/>
+  <item
+    android:id="@+id/redo"
+    android:icon="@drawable/right_white"
+    android:title="重做"
+    app:showAsAction="ifRoom"/>
+  <item
     android:id="@+id/topping_note"
     android:icon="@drawable/topping_white"
     android:title="置顶"

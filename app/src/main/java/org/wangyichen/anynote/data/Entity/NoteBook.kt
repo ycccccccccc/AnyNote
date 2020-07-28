@@ -1,14 +1,13 @@
-package org.wangyichen.anynote.source.Entity
+package org.wangyichen.anynote.data.Entity
 
 import android.graphics.Color
-import androidx.annotation.VisibleForTesting
 import androidx.room.*
 
 @Entity(tableName = "notebooks")
 data class Notebook @JvmOverloads constructor(
-  @ColumnInfo(name = "name") val name: String = "",
-  @ColumnInfo(name = "color") val color: Int = Color.WHITE,
-  @ColumnInfo(name = "description") val description: String = "",
+  @ColumnInfo(name = "name") var name: String = "",
+  @ColumnInfo(name = "color") var color: Int = Color.WHITE,
+  @ColumnInfo(name = "description") var description: String = "",
   @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "notebookid") val id: Long? = null
 )
 

@@ -1,10 +1,10 @@
-package org.wangyichen.anynote.source.local
+package org.wangyichen.anynote.data.local
 
 import android.content.Context
-import org.wangyichen.anynote.source.local.dao.PreferencesRepository
-import org.wangyichen.anynote.source.local.repository.CoverRepository
-import org.wangyichen.anynote.source.local.repository.NotebooksRepository
-import org.wangyichen.anynote.source.local.repository.NotesRepository
+import org.wangyichen.anynote.data.local.repository.PreferencesRepository
+import org.wangyichen.anynote.data.local.repository.CoverRepository
+import org.wangyichen.anynote.data.local.repository.NotebooksRepository
+import org.wangyichen.anynote.data.local.repository.NotesRepository
 import java.lang.Exception
 
 class Repository private constructor(context: Context) {
